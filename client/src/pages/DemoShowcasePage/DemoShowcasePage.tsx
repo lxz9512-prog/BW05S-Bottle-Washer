@@ -41,9 +41,6 @@ export default function DemoShowcasePage() {
   useEffect(() => {
     if (isApp && machine.activeScreen !== activeScreen) cleaningMachineStore.set({ activeScreen });
   }, [activeScreen]);
-  useEffect(() => {
-    if (!isApp && routeScreen && validScreens.includes(routeScreen)) cleaningMachineStore.set({ activeScreen: routeScreen });
-  }, [routeScreen]);
   useDemoPage(activeScreen === 'device-control' ? 'home' : activeScreen);
   useEffect(() => {
     if (isApp) return;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronRight, Plus } from "lucide-react";
+import { ChevronRight, Home, Monitor, Users, User, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import IPhoneFrame from "@client/src/components/IPhoneFrame";
 import { cleaningMachineStore } from "../DemoShowcasePage/cleaning-machine-store";
@@ -9,13 +9,8 @@ import deviceImage from '../../assets/device-bw05s.png';
 import { OperationState, useDemo, useDemoPage, useOperation } from '../../demo/react';
 import { cycleProgress, cycleSteps } from '../DemoShowcasePage/machine-cycle';
 import { entryPath } from '../../runtime';
+import background from '../../assets/cleaning-background.png';
 import monitorPreview from '../../assets/monitor-preview.jpg';
-import monitorCamera from '../../assets/mobile-home/monitor-camera.png';
-import tabHome from '../../assets/mobile-home/tab-home.png';
-import tabDevice from '../../assets/mobile-home/tab-device.png';
-import tabCommunity from '../../assets/mobile-home/tab-community.png';
-import tabMe from '../../assets/mobile-home/tab-me.png';
-import './device-home.css';
 
 const MODE_LABELS: Record<string, string> = {
   smart: 'Smart Mode',
@@ -57,79 +52,189 @@ const DeviceList: React.FC = () => {
     : '';
 
   return (
-    <IPhoneFrame background="#fcf9f7">
-      <div className="device-home">
-        <header className="home-header">
-          <h1>Clara's Family</h1>
-          <motion.button type="button" aria-label="添加设备" whileTap={{ scale: 0.95 }} className="home-add">
-            <Plus size={20} strokeWidth={2.5} aria-hidden="true" />
+    <IPhoneFrame background={`#edf3fa url('${background}') center/cover`}>
+      <div
+        className="relative flex h-full flex-col"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-8">
+          <h1
+            className="text-[24px] font-bold leading-tight"
+            style={{ color: "#121212" }}
+          >
+            Clara's Family
+          </h1>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            className="flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-full bg-white"
+            style={{
+              boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
           </motion.button>
-        </header>
+        </div>
 
-        <section className="home-content" aria-label="设备列表">
+        {/* Scrollable Content */}
+        <div className="flex-1 space-y-4 overflow-y-auto px-5 pt-5 pb-28">
           {active?.request.operation === 'devices.load' ? <OperationState operation="devices.load" replace /> : <>
-          <div className="home-card monitor-card">
-            <div className="monitor-heading">
-              <img className="monitor-icon" src={monitorCamera} alt="Camera" />
-              <div className="monitor-meta">
-                <p className="monitor-title">Clara's Baby Monitor 01</p>
-                <div className="monitor-battery">
+          {/* Baby Monitor Card */}
+          <div
+            className="rounded-[20px] p-4"
+            style={{ background: "#f0ecff" }}
+          >
+            {/* Monitor Header */}
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {/* Camera Icon */}
+                <Camera className="h-9 w-9 shrink-0 text-[#7042d8]" aria-label="Camera" />
+                <div className="flex flex-col gap-0.5">
+                  <p
+                    className="text-[16px] font-semibold leading-tight"
+                    style={{ color: "#7042d8" }}
+                  >
+                    Clara's Baby Monitor 01
+                  </p>
+                  <div className="flex items-center gap-1">
                     <svg width="16" height="10" viewBox="0 0 24 14" fill="none">
                       <rect x="0.5" y="0.5" width="20" height="13" rx="2.5" stroke="#7042d8" strokeWidth="1.5" />
                       <rect x="2" y="2" width="15" height="10" rx="1.5" fill="#7042d8" />
                       <path d="M22 5v4a2 2 0 000-4z" fill="#7042d8" fillOpacity="0.5" />
                     </svg>
-                    <span>80%</span>
+                    <span
+                      className="text-[12px]"
+                      style={{ color: "#7042d8", fontWeight: 500 }}
+                    >
+                      80%
+                    </span>
+                  </div>
                 </div>
               </div>
-              <ChevronRight size={20} aria-hidden="true" />
+              <ChevronRight className="h-5 w-5 shrink-0" style={{ color: "#b8a5e8" }} />
             </div>
-            <div className="monitor-preview-frame">
-              <img src={monitorPreview} alt="Baby Monitor" className="monitor-preview" />
+
+            {/* Video Preview */}
+            <div
+              className="relative overflow-hidden rounded-[14px]"
+              style={{ aspectRatio: "16/9" }}
+            >
+              <img
+                src={monitorPreview}
+                alt="Baby Monitor"
+                className="h-full w-full object-cover"
+              />
+
             </div>
           </div>
 
-          <motion.button
-            type="button"
+          {/* Cleaning Machine Device Card */}
+          <motion.div
             data-connector="device"
             whileTap={{ scale: 0.98 }}
             onClick={() => { const screen = isDeviceActive ? machineState.selectedMode === 'smart' ? 'smart-mode' : 'run-control' : 'home'; cleaningMachineStore.set({ activeScreen: screen }); navigate(entryPath(`/cleaning-machine/${screen}`)); }}
-            className="home-card device-card"
+            className="flex cursor-pointer items-center gap-4 rounded-[20px] px-4 py-4"
+            style={{
+              background: "#e8f3ff",
+            }}
           >
-            <span className="device-image">
-              <img src={deviceImage} alt="Cleaning Machine" />
-            </span>
-            <span className="device-meta">
-              <span className="device-heading">
-                <span className="device-title">Cleaning Machine</span>
-                <ChevronRight size={20} aria-hidden="true" />
-              </span>
-              <span className="device-status">
-                <span className="device-status-dot" style={{ backgroundColor: statusColor }} />
-                <span style={{ color: statusColor }}>{statusText}</span>
-                {isDeviceActive && modeLabel && <span className="device-mode">· {modeLabel}</span>}
-              </span>
-            </span>
-          </motion.button>
-          </>}
-        </section>
+            {/* Device Image */}
+            <div
+              className="flex h-[80px] w-[80px] shrink-0 items-center justify-center rounded-[16px] bg-white"
+              style={{ boxShadow: "0px 1px 4px rgba(0,0,0,0.04)" }}
+            >
+              <img
+                src={deviceImage}
+                alt="Cleaning Machine"
+                className="h-[60px] w-[60px] object-contain"
+              />
+            </div>
 
-        <nav className="home-tabs" aria-label="底部导航">
-          {[
-            { id: 'home', icon: tabHome, label: 'Home' },
-            { id: 'device', icon: tabDevice, label: 'Device' },
-            { id: 'community', icon: tabCommunity, label: 'Community' },
-            { id: 'me', icon: tabMe, label: 'Me' },
-          ].map(tab => (
-            <button type="button" key={tab.id} className="home-tab" aria-current={tab.id === 'device' ? 'page' : undefined}>
-              <img className="home-tab-icon" src={tab.icon} alt="" />
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </nav>
+            {/* Device Info */}
+            <div className="flex flex-1 flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span
+                  className="text-[18px]"
+                  style={{ color: "#244e7c", fontWeight: 600 }}
+                >
+                  Cleaning Machine
+                </span>
+                <ChevronRight className="h-5 w-5" style={{ color: "#729dcc" }} />
+              </div>
+              <div className="mt-1.5 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: statusColor }} />
+                <span className="text-[12px]" style={{ color: statusColor }}>
+                  {statusText}
+                </span>
+                {isDeviceActive && modeLabel && (
+                  <span className="text-[11px]" style={{ color: '#497ba8' }}>
+                    · {modeLabel}
+                  </span>
+                )}
+              </div>
+            </div>
+          </motion.div>
+          </>}
+        </div>
+
+        {/* Bottom Tab Bar - Liquid Glass */}
+        <div
+          className="device-tab-bar liquid-glass absolute bottom-8 left-4 right-4"
+          style={{ height: 62, borderRadius: 31 }}
+        >
+          <div className="relative z-10 flex h-full items-center justify-around">
+          <TabItem
+            icon={
+              <Home className="h-6 w-6 text-[#999497]" />
+            }
+            label="Home"
+            active={false}
+          />
+          <TabItem
+            icon={
+              <Monitor className="h-6 w-6 text-[#121212]" />
+            }
+            label="Device"
+            active={true}
+          />
+          <TabItem
+            icon={
+              <Users className="h-6 w-6 text-[#999497]" />
+            }
+            label="Community"
+            active={false}
+          />
+          <TabItem
+            icon={
+              <User className="h-6 w-6 text-[#999497]" />
+            }
+            label="Me"
+            active={false}
+          />
+          </div>
+        </div>
       </div>
     </IPhoneFrame>
   );
 };
+
+interface TabItemProps {
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+}
+
+const TabItem: React.FC<TabItemProps> = ({ icon, label, active }) => (
+  <button className="flex flex-col items-center justify-center gap-1 w-14">
+    <div className="flex h-6 w-6 items-center justify-center">{icon}</div>
+    <span
+      className="text-[10px] leading-none"
+      style={{ color: active ? "#121212" : "#999497", fontWeight: 500 }}
+    >
+      {label}
+    </span>
+  </button>
+);
 
 export default DeviceList;

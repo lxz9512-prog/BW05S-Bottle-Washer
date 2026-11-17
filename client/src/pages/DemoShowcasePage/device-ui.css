@@ -13,7 +13,7 @@
 .bw-confirm-overlay{align-items:center;justify-content:center}.bw-confirm{position:relative;background:var(--bw-card);width:280px;max-width:calc(100% - 52px);padding:26px 20px 20px;border-radius:23px}.bw-confirm h2{font-size:16px;line-height:23px;text-align:center;margin:0 0 24px;font-weight:500}.bw-confirm button{display:block;width:100%;height:44px;border-radius:24px;border:0;font-size:13px;background:var(--bw-soft);color:var(--bw-ink);margin-top:10px}.bw-confirm .bw-stop{background:#1b1821;color:white}.bw-notice{font-size:12px;line-height:18px;padding:12px 14px;background:var(--bw-card);border-radius:15px;color:#cb554b;margin:8px 0}.bw-loading{padding:20px}.bw-skeleton-line{height:16px;background:var(--bw-soft);border-radius:3px;margin:16px 0;animation:bw-skeleton 1s ease-in-out infinite alternate}
 @keyframes bw-sheet-in{from{transform:translateY(100%)}to{transform:translateY(0)}}@keyframes bw-skeleton{to{opacity:.35}}
 .bw-dock .bw-primary{width:auto;min-width:0;flex:1}
-.bw-product{overflow:hidden}.bw-product img{width:244px;max-width:100%;height:208px;object-fit:contain}
+.bw-product{overflow:hidden}.bw-product img{width:350px;max-width:none;height:216px;object-fit:cover}
 .bw-device .bw-mode-card.selected{background:linear-gradient(135deg,#1688f7,#009bff);color:white}
 .bw-mode-icon{display:block;width:22px;height:22px;flex-shrink:0;object-fit:contain;filter:brightness(0)}
 .bw-mode-card.selected .bw-mode-icon{filter:brightness(0) invert(1)}

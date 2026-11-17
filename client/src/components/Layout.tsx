@@ -13,7 +13,6 @@ import { cleaningMachineStore } from '../pages/DemoShowcasePage/cleaning-machine
 import { useLocale } from '../pages/DemoShowcasePage/useLocale';
 import { useDarkMode } from '../pages/DemoShowcasePage/useDarkMode';
 import { useMachineClock } from '../pages/DemoShowcasePage/useMachineClock';
-import PreviewSwitcher from './PreviewSwitcher';
 
 const directory = ['devices', 'home', 'custom-mode', 'smart-mode', 'run-control', 'settings', 'device-info', 'baby-items', 'other-settings', 'notifications'];
 export default function Layout() {
@@ -117,7 +116,6 @@ export default function Layout() {
   }, [page.id, directoryOpen, consoleOpen, infoOpen, connectors, revision]);
   return <div className="demo-workspace" ref={root}>
     <div className="workspace-header"><strong>BW05S清洗机</strong><span>{page.title}</span>
-      <PreviewSwitcher />
       <nav aria-label="演示面板">
         <button title="手机体验" aria-label="手机体验二维码" onClick={() => setShareOpen(true)}><Smartphone size={18} /></button>
         <button title="页面目录" aria-label="页面目录" aria-pressed={directoryOpen} onClick={() => { setDirectoryOpen(!directoryOpen); if (window.innerWidth < 1200) { setConsoleOpen(false); setInfoOpen(false); } }}><ListTree size={18} /></button>

@@ -14,10 +14,7 @@ try {
       canvas.width = canvas.height = size;
       const ctx = canvas.getContext('2d');
       ctx.fillStyle = '#edf3fa'; ctx.fillRect(0, 0, size, size);
-      const scale = Math.min(size * .72 / image.naturalWidth, size * .64 / image.naturalHeight);
-      const width = image.naturalWidth * scale;
-      const height = image.naturalHeight * scale;
-      ctx.drawImage(image, (size - width) / 2, size * .1 + (size * .64 - height) / 2, width, height);
+      ctx.drawImage(image, 0, size * .2, size, size * .5625);
       ctx.fillStyle = '#244e7c'; ctx.font = `600 ${size * .09}px system-ui`;
       ctx.textAlign = 'center'; ctx.fillText('BW05S', size / 2, size * .83);
       return canvas.toDataURL('image/png').split(',')[1];
