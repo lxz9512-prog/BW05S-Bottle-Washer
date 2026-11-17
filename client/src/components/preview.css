@@ -1,0 +1,20 @@
+.preview-switcher { display: flex; gap: 2px; padding: 3px; border: 1px solid #dfe4e5; border-radius: 6px; background: #f0f3f3; flex-shrink: 0; }
+.preview-switcher button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; min-width: 86px; padding: 0 10px; border: 0; border-radius: 4px; background: transparent; color: #65716d; font-size: 12px; line-height: 1; cursor: pointer; }
+.preview-switcher button[aria-pressed=true] { background: #fff; color: #1b6c57; box-shadow: 0 1px 3px #182b3014; }
+.preview-switcher button:focus-visible { outline: 2px solid #24816d; outline-offset: 2px; }
+.workspace-header > .preview-switcher { margin-left: auto; }
+.workspace-header > .preview-switcher + nav { margin-left: 0; }
+.preview-header { display: none; }
+.mobile-preview { width: 100%; height: 100%; }
+@media (min-width: 1024px) {
+  .mobile-preview { overflow: auto; background: #f3f5f6; color: #222b29; }
+  .preview-header { position: sticky; top: 0; z-index: 80; display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 60px; padding: 0 24px; border-bottom: 1px solid #dfe4e5; background: #fff; }
+  .preview-header strong { font-size: 16px; }
+  .mobile-preview-stage { display: flex; justify-content: center; padding: 24px; min-width: 441px; }
+  .mobile-preview .mobile-app { position: relative; top: auto; left: auto; width: 393px; height: 852px; flex-shrink: 0; box-shadow: 0 2px 16px #182b3014; }
+  .mobile-preview .app-screen { padding: 0; }
+}
+@media (max-width: 600px) {
+  .workspace-header > .preview-switcher button { min-width: 28px; width: 28px; padding: 0; }
+  .workspace-header > .preview-switcher span { display: none; }
+}

@@ -4,6 +4,7 @@ import { useMachineClock } from '../pages/DemoShowcasePage/useMachineClock';
 import { useDarkMode } from '../pages/DemoShowcasePage/useDarkMode';
 import { useLocale } from '../pages/DemoShowcasePage/useLocale';
 import { RouteBoundary } from '../demo/react';
+import PreviewSwitcher from './PreviewSwitcher';
 import './mobile.css';
 
 export default function MobileLayout() {
@@ -32,5 +33,8 @@ export default function MobileLayout() {
       window.removeEventListener('resize', update);
     };
   }, []);
-  return <main className={`mobile-app ${darkMode ? 'app-dark' : ''}`}><RouteBoundary><Outlet /></RouteBoundary></main>;
+  return <div className="mobile-preview">
+    <header className="preview-header"><strong>BW05S清洗机</strong><PreviewSwitcher /></header>
+    <div className="mobile-preview-stage"><main className={`mobile-app ${darkMode ? 'app-dark' : ''}`}><RouteBoundary><Outlet /></RouteBoundary></main></div>
+  </div>;
 }
