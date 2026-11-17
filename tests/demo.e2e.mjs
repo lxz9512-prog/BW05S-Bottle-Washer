@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 
-const url = process.env.DEMO_URL ?? 'http://127.0.0.1:5173/';
+const url = process.env.DEMO_URL ?? 'http://127.0.0.1:5173/#/demo';
 await mkdir('tests/artifacts', { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', headless: true });
 try {

@@ -35,6 +35,11 @@ export interface Snapshot {
 }
 /** A single mock interaction boundary. No real network, account, permission, or device calls. */
 export class ScenarioEngine {
+  constructor(private scenariosEnabled = true) {}
+  setScenariosEnabled(enabled: boolean) {
+    this.normal();
+    this.scenariosEnabled = enabled;
+  }
   private state: Snapshot = {
     injections: {},
     active: null,
@@ -71,6 +76,7 @@ export class ScenarioEngine {
     previous?.request.cancel?.();
   };
   arm(sceneId: string, policy: Policy = 'once', retry: Retry = 'success') {
+    if (!this.scenariosEnabled) return;
     const scene = getScene(sceneId);
     if (!scene) return;
     this.cancel();
@@ -120,14 +126,16 @@ export class ScenarioEngine {
       preview?: boolean;
     } = {},
   ) {
+    if (!this.scenariosEnabled) options = {};
     if (this.state.active?.status === 'loading') return false;
     if (!options.previewId && request.ready && !request.ready()) {
       this.publish({ lastEvent: '请先完成本页必填信息或选择模式，再重试' });
       return false;
     }
     this.cancel();
-    const configured =
-      this.state.injections.global ?? this.state.injections[request.stage];
+    const configured = this.scenariosEnabled
+      ? this.state.injections.global ?? this.state.injections[request.stage]
+      : undefined;
     const candidate =
       options.forceScene ??
       (options.previewId

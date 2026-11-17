@@ -1,0 +1,7 @@
+[data-device-screen] { --device-safe-top: 59px; display: flex; flex-direction: column; }
+.device-status-bar { height: var(--device-safe-top); flex-shrink: 0; }
+.device-content { position: relative; flex: 1; min-height: 0; width: 100%; }
+.device-content [data-screen-overlay] { top: calc(-1 * var(--device-safe-top)); }
+.device-content .flex-1 { min-width: 0; min-height: 0; }
+.device-content svg { flex-shrink: 0; }
+.device-content > div { height: 100%; }

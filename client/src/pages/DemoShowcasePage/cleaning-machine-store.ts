@@ -1,4 +1,6 @@
 import type { SubModeConfig, ModeConfig } from './demo-constants';
+import { demoLocal } from '../../demo/storage';
+import { isApp } from '../../runtime';
 
 export interface CleaningMachineState {
   activeScreen: string;
@@ -32,7 +34,8 @@ const DEFAULT_STATE: CleaningMachineState = {
   presentation: 'normal',
 };
 
-let state: CleaningMachineState = { ...DEFAULT_STATE };
+const saved = isApp ? demoLocal.get<Partial<CleaningMachineState>>('machine', {}) : {};
+let state: CleaningMachineState = { ...DEFAULT_STATE, ...saved, presentation: 'normal' };
 let listeners: Array<() => void> = [];
 
 export const cleaningMachineStore = {
@@ -43,6 +46,7 @@ export const cleaningMachineStore = {
 
   set(partial: Partial<CleaningMachineState>) {
     state = { ...state, ...partial };
+    if (isApp) demoLocal.set('machine', state);
     listeners.forEach(fn => fn());
   },
 
@@ -52,6 +56,7 @@ export const cleaningMachineStore = {
 
   reset() {
     state = { ...DEFAULT_STATE };
+    if (isApp) demoLocal.remove('machine');
     listeners.forEach(fn => fn());
   },
 

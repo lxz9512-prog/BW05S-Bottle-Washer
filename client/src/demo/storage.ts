@@ -1,4 +1,6 @@
-export const PREFIX = 'BW05S_demo_v1:';
+import { isApp } from '../runtime';
+
+export const PREFIX = isApp ? 'BW05S_app_v1:' : 'BW05S_demo_v1:';
 export const demoLocal = {
   get<T>(key: string, fallback: T): T {
     try { const value = localStorage.getItem(PREFIX + key); return value ? JSON.parse(value) : fallback; }

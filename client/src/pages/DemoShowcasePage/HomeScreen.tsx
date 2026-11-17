@@ -6,6 +6,7 @@ import { DEFAULT_CUSTOM_MODES, type ModeConfig, type SubModeConfig } from './dem
 import { ChildLock, DeviceSurface, DeviceHeader, DeviceProduct, DeviceSheet, CustomEditor, ScheduleSheet, useDeviceCopy, useDeviceUnavailable } from './DeviceUI';
 import { usePhoneToast } from './usePhoneToast';
 import { useOperation } from '../../demo/react';
+import { entryPath } from '../../runtime';
 
 interface HomeScreenProps {
   onNavigate: (config: ModeConfig) => void;
@@ -66,7 +67,7 @@ export default function HomeScreen({ onNavigate, selectedMode, onSelectMode, las
   };
   return <DeviceSurface>
     {ToastElement}
-    <DeviceHeader onBack={() => navigate('/')} onSettings={onSettings} />
+    <DeviceHeader onBack={() => navigate(entryPath())} onSettings={onSettings} />
     <div className="bw-scroll" data-connector="content">
       <DeviceProduct />
       {groups.map(group => <section className="bw-mode-group" key={group.title}><h2>{group.title}</h2><div className="bw-mode-grid">

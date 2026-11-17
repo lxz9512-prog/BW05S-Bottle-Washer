@@ -1,6 +1,9 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
-import { Activity, BookOpen, Cable, ListTree, Moon, RotateCcw, Sun, X } from 'lucide-react';
+import { Activity, BookOpen, Cable, ListTree, Moon, RotateCcw, Sun, X, Smartphone } from 'lucide-react';
+import { entryPath } from '../runtime';
+import { QRCodeSVG } from 'qrcode.react';
+import '../demo/tools.css';
 import ScenarioConsole from '../demo/Console';
 import { RouteBoundary, resetDemo, setDemoPage, usePage, useDemo } from '../demo/react';
 import { demoEngine } from '../demo/engine';
@@ -29,6 +32,14 @@ export default function Layout() {
   const stage = useRef<HTMLElement>(null);
   const [phoneScale, setPhoneScale] = useState(1);
   const launcher = useRef<HTMLButtonElement>(null);
+  const [shareOpen, setShareOpen] = useState(false);
+  const shareDialog = useRef<HTMLDialogElement>(null);
+  const mobileUrl = new URL('#/app', window.location.href);
+  if (import.meta.env.DEV && import.meta.env.DEV_LAN_HOST && ['localhost', '127.0.0.1', '[::1]'].includes(mobileUrl.hostname)) mobileUrl.hostname = import.meta.env.DEV_LAN_HOST;
+  const appUrl = mobileUrl.href;
+  useEffect(() => {
+    if (shareOpen) shareDialog.current?.showModal();
+  }, [shareOpen]);
   useLayoutEffect(() => {
     const element = stage.current;
     if (!element) return;
@@ -59,18 +70,18 @@ export default function Layout() {
   const closeConsole = () => { setConsoleOpen(false); requestAnimationFrame(() => launcher.current?.focus()); };
   const go = (id: string) => {
     demoEngine.normal();
-    if (id === 'devices' || id === 'notifications') navigate(id === 'devices' ? '/' : '/notifications');
+    if (id === 'devices' || id === 'notifications') navigate(entryPath(id === 'devices' ? '/' : '/notifications'));
     else {
       cleaningMachineStore.set({ activeScreen: id });
       window.dispatchEvent(new CustomEvent('bw05s:navigate', { detail: id }));
-      navigate('/cleaning-machine');
+      navigate(entryPath('/cleaning-machine'));
     }
     setDemoPage(id);
     if (window.innerWidth < 1200) setDirectoryOpen(false);
   };
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { closeConsole(); setDirectoryOpen(false); setInfoOpen(false); }
+      if (event.key === 'Escape') { closeConsole(); setDirectoryOpen(false); setInfoOpen(false); setShareOpen(false); }
     };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
@@ -106,6 +117,7 @@ export default function Layout() {
   return <div className="demo-workspace" ref={root}>
     <div className="workspace-header"><strong>BW05S清洗机</strong><span>{page.title}</span>
       <nav aria-label="演示面板">
+        <button title="手机体验" aria-label="手机体验二维码" onClick={() => setShareOpen(true)}><Smartphone size={18} /></button>
         <button title="页面目录" aria-label="页面目录" aria-pressed={directoryOpen} onClick={() => { setDirectoryOpen(!directoryOpen); if (window.innerWidth < 1200) { setConsoleOpen(false); setInfoOpen(false); } }}><ListTree size={18} /></button>
         <button ref={launcher} title="异常控制台" aria-label="打开异常控制台" aria-pressed={consoleOpen} onClick={() => { setConsoleOpen(!consoleOpen); if (window.innerWidth < 1200) { setDirectoryOpen(false); setInfoOpen(false); } }}><Activity size={18} /></button>
         <button title="交互说明" aria-label="交互说明" aria-pressed={infoOpen} onClick={() => { setInfoOpen(!infoOpen); if (window.innerWidth < 1200) { setDirectoryOpen(false); setConsoleOpen(false); } }}><BookOpen size={18} /></button>
@@ -133,5 +145,6 @@ export default function Layout() {
       </aside>}
     </div>
     {paths.length > 0 && <svg className="interaction-lines" aria-hidden="true">{paths.map((d, index) => <path key={index} d={d} />)}</svg>}
+    {shareOpen && <dialog ref={shareDialog} className="share-dialog" aria-label="手机体验" onCancel={() => setShareOpen(false)}><header><h2>手机体验</h2><button aria-label="关闭手机体验" onClick={() => setShareOpen(false)}><X size={18} /></button></header><QRCodeSVG value={appUrl} size={192} marginSize={2} /><a href={appUrl} target="_blank" rel="noopener">{appUrl}</a></dialog>}
   </div>;
 }

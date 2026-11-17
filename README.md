@@ -13,15 +13,43 @@ npm run dev
 
 默认地址为 http://127.0.0.1:5173/。开发服务器已占用该端口时，Vite 会选择下一个可用端口，以终端输出为准。导入项目中的平台安装脚本不适用于独立预览，因此安装依赖时使用 `--ignore-scripts`。
 
+## 两种体验
+
+- `/#/demo`：桌面演示工作区，保留页面目录、异常控制台、交互说明和可选手机边框。顶部手机图标打开手机体验二维码。
+- `/#/app`：手机纯 App 体验，没有异常控制台、模拟手机外壳、信号栏、灵动岛或底部横条；使用设备自身的安全区。页面支持浏览器返回、直接链接和刷新，语言、主题、物品及运行状态在本机保存。
+- 不指定入口时，首次根据窗口宽度选择手机（768px 及以下）或桌面体验。入口固定后，旋转屏幕不会切换体验。
+- 两种体验共享业务组件，但使用独立存储命名空间 `BW05S_demo_v1:` 和 `BW05S_app_v1:`，异常注入只在桌面演示中启用。
+
+手机与电脑连接同一 Wi-Fi 时，运行：
+
+```sh
+npm run dev -- --host 0.0.0.0
+```
+
+手机打开 Vite 输出的局域网地址并加上 `/#/app`。开发模式下，本机访问的二维码会使用检测到的局域网 IP；多网卡或 VPN 环境可直接使用 Vite 输出的有效地址。电脑需要保持运行，防火墙需允许局域网访问。
+
+## PWA 与发布
+
+生产构建包含 Web App Manifest、应用图标和离线缓存。部署到 HTTPS 静态托管后，手机可通过浏览器「添加到主屏幕」以独立窗口打开；不需要 App Store、开发者证书或安装包。首次联网打开并完成缓存后，可离线重新访问。新版本等待旧页面关闭后启用，不中断正在体验的流程。
+
+局域网 HTTP 仅用于浏览器预览，不能代替 HTTPS 的安装和离线能力。`localhost` 可用于电脑上的 PWA 验证。所有操作仍为模拟，不连接真实清洗机。
+
+部署产物为 `dist/`，支持 GitHub Pages、Cloudflare Pages、Vercel 等静态托管。`.github/workflows/deploy.yml` 在 `main` 分支推送时自动构建并发布 GitHub Pages，也支持手动触发。仓库已按所有者授权改为公开。
+
+- 桌面演示：https://lxz9512-prog.github.io/BW05S-Bottle-Washer/#/demo
+- 手机体验：https://lxz9512-prog.github.io/BW05S-Bottle-Washer/#/app
+
 ```sh
 npm run build
 npm run preview
 npm run type:check:client
 npm run test:demo
 npm run test:demo:e2e
+npm run test:demo:safe-area
+npm run test:app:e2e
 ```
 
-浏览器回归需要已安装 Google Chrome 和运行中的本地服务器。可通过 `DEMO_URL` 指定测试地址。macOS 上自动启动 Chrome 需具备桌面服务访问权限；测试使用独立浏览器上下文，不读取普通浏览器会话。
+浏览器回归需要已安装 Google Chrome 和运行中的本地服务器。可通过 `DEMO_URL` 指定桌面测试地址，通过 `APP_URL` 指定手机测试站点根地址。生产预览时设置 `PWA_TEST=1` 可验证离线重新访问。macOS 上自动启动 Chrome 需具备桌面服务访问权限；测试使用独立浏览器上下文，不读取普通浏览器会话。
 
 ## 通用演示能力
 
@@ -56,4 +84,4 @@ npm run test:demo:e2e
 - `tests/engine.test.mjs`：场景和恢复规则测试。
 - `tests/demo.e2e.mjs`：桌面与 375/390/430 像素窄屏浏览器回归，截图输出到忽略版本控制的 `tests/artifacts/`。
 
-异常和网络均为前端模拟，不连接真实设备、账户、云接口或系统权限。部分原项目图片仍来自远程资源；无网络环境可能无法显示这些图片。本次未配置线上部署。
+异常和网络均为前端模拟，不连接真实设备、账户、云接口或系统权限。当前体验页面引用的产品图、背景、监控预览与模式图标均随项目打包，不依赖远程图片。

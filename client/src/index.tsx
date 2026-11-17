@@ -6,9 +6,15 @@ import { ErrorBoundary } from 'react-error-boundary';
 
 import RoutesComponent from './app.tsx';
 import './index.css';
-import './demo/tools.css';
 import { createPortal } from 'react-dom';
 import { Toaster } from '@client/src/components/ui/sonner';
+import { isApp } from './runtime';
+
+if (isApp && import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(error => console.warn('Offline support unavailable', error));
+  });
+}
 
 
 const MainApp = () => {

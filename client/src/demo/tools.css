@@ -50,14 +50,12 @@
 [data-show-phone-frame=false] [data-device-screen] { border-radius: 8px; }
 .demo-route { width: calc(393px * var(--phone-scale, 1)); height: calc(852px * var(--phone-scale, 1)); position: relative; flex-shrink: 0; }
 [data-device-frame] { margin: 0; transform: scale(var(--phone-scale, 1)); transform-origin: top left; }
-[data-device-screen] { --device-safe-top: 59px; display: flex; flex-direction: column; }
-.device-status-bar { height: var(--device-safe-top); flex-shrink: 0; }
-/* Backgrounds reach both screen edges; page docks reserve their own bottom safe area. */
-.device-content { position: relative; flex: 1; min-height: 0; width: 100%; }
-.device-content [data-screen-overlay] { top: calc(-1 * var(--device-safe-top)); }
-.device-content .flex-1 { min-width: 0; min-height: 0; }
-.device-content svg { flex-shrink: 0; }
-.device-content > div { height: 100%; }
+.share-dialog { position: fixed; inset: 0; margin: auto; z-index: 100; width: min(340px, calc(100vw - 32px)); border: 1px solid #dce2e2; border-radius: 8px; padding: 20px; background: white; color: #222b29; box-shadow: 0 8px 60px #182b3033; }
+.share-dialog header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.share-dialog h2 { font-size: 16px; font-weight: 600; }
+.share-dialog > svg { display: block; margin: auto; }
+.share-dialog > a { display: block; margin-top: 16px; font-size: 12px; overflow-wrap: anywhere; color: #17634e; }
+.share-dialog::backdrop { background: #182b3055; }
 .mode-sheet-title { min-height: 40px; padding: 0 40px; display: flex; align-items: center; justify-content: center; overflow-wrap: anywhere; }
 .info-panel details { border-bottom: 1px solid #e4e9e6; padding: 16px 0; }
 .info-panel summary { display: flex; gap: 8px; align-items: center; font-weight: 600; cursor: pointer; list-style: none; }

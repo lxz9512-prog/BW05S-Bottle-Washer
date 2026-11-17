@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Home, Monitor, Users, User, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import IPhoneFrame from "@client/src/components/IPhoneFrame";
 import { cleaningMachineStore } from "../DemoShowcasePage/cleaning-machine-store";
@@ -8,6 +8,9 @@ import type { CleaningMachineState } from "../DemoShowcasePage/cleaning-machine-
 import deviceImage from '../../assets/device-bw05s.png';
 import { OperationState, useDemo, useDemoPage, useOperation } from '../../demo/react';
 import { cycleProgress, cycleSteps } from '../DemoShowcasePage/machine-cycle';
+import { entryPath } from '../../runtime';
+import background from '../../assets/cleaning-background.png';
+import monitorPreview from '../../assets/monitor-preview.jpg';
 
 const MODE_LABELS: Record<string, string> = {
   smart: 'Smart Mode',
@@ -49,7 +52,7 @@ const DeviceList: React.FC = () => {
     : '';
 
   return (
-    <IPhoneFrame background="#f0ecff url('https://miaoda.feishu.cn/aily/api/v1/feisuda/attachments/75e322f6-8b3d-4e00-8384-7b3a431dda1b/raw') center/cover">
+    <IPhoneFrame background={`#edf3fa url('${background}') center/cover`}>
       <div
         className="relative flex h-full flex-col"
       >
@@ -86,11 +89,7 @@ const DeviceList: React.FC = () => {
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {/* Camera Icon */}
-                <img
-                  src="https://miaoda.feishu.cn/aily/api/v1/feisuda/attachments/85cb8fe4-88ab-4fcf-8275-7191a943ec21/raw"
-                  alt="Camera"
-                  className="h-9 w-9 shrink-0 object-contain"
-                />
+                <Camera className="h-9 w-9 shrink-0 text-[#7042d8]" aria-label="Camera" />
                 <div className="flex flex-col gap-0.5">
                   <p
                     className="text-[16px] font-semibold leading-tight"
@@ -122,7 +121,7 @@ const DeviceList: React.FC = () => {
               style={{ aspectRatio: "16/9" }}
             >
               <img
-                src="https://miaoda.feishu.cn/aily/api/v1/feisuda/attachments/8a1ec7e0-f506-4a02-b394-62c7e554ab2e/raw"
+                src={monitorPreview}
                 alt="Baby Monitor"
                 className="h-full w-full object-cover"
               />
@@ -134,7 +133,7 @@ const DeviceList: React.FC = () => {
           <motion.div
             data-connector="device"
             whileTap={{ scale: 0.98 }}
-            onClick={() => { cleaningMachineStore.set({ activeScreen: isDeviceActive ? machineState.selectedMode === 'smart' ? 'smart-mode' : 'run-control' : 'home' }); navigate("/cleaning-machine"); }}
+            onClick={() => { const screen = isDeviceActive ? machineState.selectedMode === 'smart' ? 'smart-mode' : 'run-control' : 'home'; cleaningMachineStore.set({ activeScreen: screen }); navigate(entryPath(`/cleaning-machine/${screen}`)); }}
             className="flex cursor-pointer items-center gap-4 rounded-[20px] px-4 py-4"
             style={{
               background: "#e8f3ff",
@@ -181,50 +180,34 @@ const DeviceList: React.FC = () => {
 
         {/* Bottom Tab Bar - Liquid Glass */}
         <div
-          className="liquid-glass absolute bottom-8 left-4 right-4"
+          className="device-tab-bar liquid-glass absolute bottom-8 left-4 right-4"
           style={{ height: 62, borderRadius: 31 }}
         >
           <div className="relative z-10 flex h-full items-center justify-around">
           <TabItem
             icon={
-              <img
-                src="https://miaoda.feishu.cn/aily/api/v1/feisuda/attachments/a3dd92a2-9bc7-406c-a9ea-b7b62dfcf98d/raw"
-                alt="Home"
-                className="h-6 w-6"
-              />
+              <Home className="h-6 w-6 text-[#999497]" />
             }
             label="Home"
             active={false}
           />
           <TabItem
             icon={
-              <img
-                src="https://miaoda.feishu.cn/aily/api/v1/feisuda/attachments/f83ee628-7a91-4fed-894c-1f7d4763f83b/raw"
-                alt="Device"
-                className="h-6 w-6"
-              />
+              <Monitor className="h-6 w-6 text-[#121212]" />
             }
             label="Device"
             active={true}
           />
           <TabItem
             icon={
-              <img
-                src="https://miaoda.feishu.cn/aily/api/v1/feisuda/attachments/01cbbc92-a939-4726-ae54-0e49f3c80db4/raw"
-                alt="Community"
-                className="h-6 w-6"
-              />
+              <Users className="h-6 w-6 text-[#999497]" />
             }
             label="Community"
             active={false}
           />
           <TabItem
             icon={
-              <img
-                src="https://miaoda.feishu.cn/aily/api/v1/feisuda/attachments/321f0f3e-e355-4bd0-afc3-8d77bc9f2a59/raw"
-                alt="Me"
-                className="h-6 w-6"
-              />
+              <User className="h-6 w-6 text-[#999497]" />
             }
             label="Me"
             active={false}

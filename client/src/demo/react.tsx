@@ -5,6 +5,9 @@ import { pages, getScene, type Operation, type Stage } from './catalog';
 import { cleaningMachineStore } from '../pages/DemoShowcasePage/cleaning-machine-store';
 import { localeStore } from '../pages/DemoShowcasePage/locale-store';
 import { demoLocal } from './storage';
+import { entryPath, isApp } from '../runtime';
+
+demoEngine.setScenariosEnabled(!isApp);
 
 export const useDemo = () => useSyncExternalStore(demoEngine.subscribe, demoEngine.getSnapshot);
 let pageId = 'devices';
@@ -50,6 +53,7 @@ export function useOperation(request: Request) {
   };
 }
 export function selectScene(id: string, operations: Operation[], retry: 'success' | 'failure') {
+  if (isApp) return;
   demoEngine.normal();
   const scene = getScene(id);
   if (!scene) return;
@@ -65,7 +69,7 @@ export function resetDemo(stage?: Stage) {
     demoLocal.clear();
     cleaningMachineStore.reset();
     localeStore.reset();
-    window.location.hash = '/';
+    window.location.hash = entryPath();
     setDemoPage('devices');
   } else {
     if (stage === 'cleaning' || stage === 'running') cleaningMachineStore.reset();
@@ -79,8 +83,8 @@ export function RouteBoundary({ children }: { children: React.ReactNode }) {
   const { revision } = useDemo();
   useLayoutEffect(() => {
     demoEngine.routeChanged();
-    if (location.pathname === '/') setDemoPage('devices');
-    if (location.pathname === '/notifications') setDemoPage('notifications');
+    if (location.pathname === entryPath() || location.pathname === `${entryPath()}/`) setDemoPage('devices');
+    if (location.pathname === entryPath('/notifications')) setDemoPage('notifications');
   }, [location.pathname, location.search]);
   useEffect(() => () => demoEngine.normal(), []);
   return <div className="demo-route" key={`${location.pathname}:${revision}`}>{children}</div>;

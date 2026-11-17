@@ -11,7 +11,8 @@ let checks = 0;
 try {
   const page = await browser.newPage({ viewport: { width: 1512, height: 1100 } });
   page.on('pageerror', error => errors.push(error.message));
-  await page.goto(process.env.DEMO_URL ?? 'http://127.0.0.1:5173/');
+  await page.goto(process.env.DEMO_URL ?? 'http://127.0.0.1:5173/#/demo');
+  await page.locator('.console-toolbar').waitFor();
   const go = async title => {
     if (!await page.locator('.directory-panel').isVisible()) await page.getByRole('button', { name: '页面目录', exact: true }).click();
     await page.locator('.directory-panel').getByRole('button', { name: title, exact: true }).click();

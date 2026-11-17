@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { isApp } from '../runtime';
+import './device.css';
 
 interface IPhoneFrameProps {
   children: ReactNode;
@@ -7,6 +9,9 @@ interface IPhoneFrameProps {
 }
 
 const IPhoneFrame = ({ children, background = "transparent", statusBarColor = "#000000" }: IPhoneFrameProps) => {
+  if (isApp) return <div data-app-screen data-device-screen className="app-screen" style={{ background }}>
+    <div data-connector="content" className="device-content">{children}</div>
+  </div>;
   return (
     <div data-device-frame className="relative mx-auto" style={{ width: 393, height: 852 }}>
       {/* Outer device frame - titanium border */}

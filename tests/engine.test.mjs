@@ -17,6 +17,25 @@ test('scene identifiers are unique and contracts complete', () => {
     assert.ok(scene.stage === 'global' || scene.operations.length);
   }
 });
+test('app engine rejects armed and forced scenarios but preserves normal operations', t => {
+  t.mock.timers.enable({ apis: ['setTimeout', 'setInterval', 'Date'] });
+  const engine = new ScenarioEngine(false);
+  let commits = 0;
+  const request = { operation: 'cleaning.start', stage: 'cleaning', label: 'Start', delay: 20, success: () => commits++ };
+  engine.arm('global.offline', 'persistent');
+  assert.deepEqual(engine.getSnapshot().injections, {});
+  engine.run(request, { previewId: 'cleaning.failure', forceScene: scenes.find(scene => scene.id === 'cleaning.failure') });
+  assert.equal(engine.getSnapshot().active.scene, undefined);
+  t.mock.timers.tick(21);
+  assert.equal(commits, 1);
+  engine.setScenariosEnabled(true);
+  engine.run(request, { previewId: 'cleaning.failure' });
+  assert.ok(engine.getSnapshot().active.scene);
+  engine.setScenariosEnabled(false);
+  assert.equal(engine.getSnapshot().active, null);
+  t.mock.timers.tick(10000);
+  assert.equal(commits, 1);
+});
 for (const scene of scenes) {
   test(`${scene.id}: immediate preview never commits; recovery commits once`, t => {
     t.mock.timers.enable({ apis: ['setTimeout', 'setInterval', 'Date'] });

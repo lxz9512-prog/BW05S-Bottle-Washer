@@ -9,6 +9,8 @@ import { BABY_ITEMS_LIGHT_THEME } from './light-themes';
 import { useDemoPage } from '../../demo/react';
 import { demoLocal } from '../../demo/storage';
 import { demoEngine } from '../../demo/engine';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { isApp } from '../../runtime';
 
 function parseReplaceMonths(replaceEvery: string): number {
   const match = replaceEvery.match(/\d+/);
@@ -159,8 +161,24 @@ const BabyItemsScreen = ({ onBack }: BabyItemsScreenProps) => {
   const THEME_VALUES = darkMode ? BABY_ITEMS_DARK_THEME : BABY_ITEMS_LIGHT_THEME;
 
   const [items, setItems] = useState<BabyItem[]>(() => demoLocal.get('items', DEFAULT_ITEMS));
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [selectedItem, setSelectedItem] = useState<BabyItem | null>(null);
+  const [localView, setLocalView] = useState<ViewMode>('list');
+  const [localItem, setLocalItem] = useState<BabyItem | null>(null);
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const requestedView = params.get('view');
+  const selectedItem = isApp ? items.find(item => item.id === params.get('id')) ?? null : localItem;
+  const viewMode: ViewMode = isApp
+    ? requestedView === 'add' ? 'add' : selectedItem && (requestedView === 'edit' || requestedView === 'detail') ? requestedView : 'list'
+    : localView;
+  const setSelectedItem = setLocalItem;
+  const setViewMode = (view: ViewMode, id?: string, replace = false) => {
+    if (!isApp) { setLocalView(view); return; }
+    const search = new URLSearchParams();
+    if (view !== 'list') search.set('view', view);
+    if (id) search.set('id', id);
+    navigate({ pathname: location.pathname, search: search.toString() }, { replace, state: { ...location.state, babyView: true } });
+  };
   useDemoPage(viewMode === 'add' || viewMode === 'edit' ? 'items-form' : 'baby-items');
 
   const sortedItems = useMemo(() => {
@@ -172,7 +190,8 @@ const BabyItemsScreen = ({ onBack }: BabyItemsScreenProps) => {
   const handleBack = () => {
     demoEngine.normal();
     if (viewMode !== 'list') {
-      setViewMode('list');
+      if (isApp && location.state?.babyView) navigate(-1);
+      else setViewMode('list');
       setSelectedItem(null);
     } else {
       onBack();
@@ -181,12 +200,12 @@ const BabyItemsScreen = ({ onBack }: BabyItemsScreenProps) => {
 
   const handleSelectItem = (item: BabyItem) => {
     setSelectedItem(item);
-    setViewMode('detail');
+    setViewMode('detail', item.id);
   };
 
   const handleEditItem = (item: BabyItem) => {
     setSelectedItem(item);
-    setViewMode('edit');
+    setViewMode('edit', item.id);
   };
 
   const handleAddItem = (newItem: {
@@ -203,7 +222,9 @@ const BabyItemsScreen = ({ onBack }: BabyItemsScreenProps) => {
       scientificAdvice: '',
     };
       const next = [...items, item];
-      demoLocal.set('items', next); setItems(next); setViewMode('list');
+      demoLocal.set('items', next); setItems(next);
+      if (isApp && location.state?.babyView) navigate(-1);
+      else setViewMode('list', undefined, true);
   };
 
   const handleUpdateItem = (updated: {
@@ -218,7 +239,9 @@ const BabyItemsScreen = ({ onBack }: BabyItemsScreenProps) => {
         it.id === selectedItem.id ? { ...it, ...updated } : it
       );
       demoLocal.set('items', next); setItems(next);
-      setSelectedItem({ ...selectedItem, ...updated }); setViewMode('detail');
+      setSelectedItem({ ...selectedItem, ...updated });
+      if (isApp && location.state?.babyView) navigate(-1);
+      else setViewMode('detail', selectedItem.id, true);
   };
 
   if (viewMode === 'detail' && selectedItem) {
