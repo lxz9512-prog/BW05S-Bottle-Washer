@@ -1,0 +1,88 @@
+export type Stage = 'devices' | 'cleaning' | 'running' | 'settings' | 'items' | 'global';
+export type Operation = 'devices.load' | 'cleaning.start' | 'running.control' | 'device.rename' | 'items.save';
+export type Outcome = 'error' | 'timeout' | 'validation' | 'interrupted' | 'empty' | 'loading' | 'slow' | 'success';
+export interface Scene {
+  id: string;
+  stage: Stage;
+  name: string;
+  operations: Operation[];
+  outcome: Outcome;
+  delay: number;
+  prerequisite: string;
+  process: string;
+  message: string;
+  recovery: string;
+  retryLabel?: string;
+  editLabel?: string;
+}
+export interface DemoPage {
+  id: string;
+  title: string;
+  stage: Stage;
+  operations: Operation[];
+  notes: { title: string; body: string; target: string }[];
+}
+const note = (title: string, body: string, target: string) => ({ title, body, target });
+export const pages: Record<string, DemoPage> = {
+  devices: { id: 'devices', title: '设备列表', stage: 'devices', operations: ['devices.load'], notes: [
+    note('清洗机入口', '点击清洗机卡片进入控制页。运行或暂停状态与设备控制共享。', 'device'),
+    note('列表状态', '加载、空态和失败场景替换列表内容；恢复正常不重放启动操作。', 'content'),
+  ] },
+  home: { id: 'home', title: '模式选择', stage: 'cleaning', operations: ['cleaning.start'], notes: [
+    note('模式选择', '保留推荐、日常与精细护理分组，选中模式后使用底部开始按钮。', 'content'),
+    note('启动与预约', '普通模式直接启动；精细护理先选数量或材质。时钟入口可预约 1/3/6 小时或自定义时间，预约可修改或直接取消。启动失败保留配置。', 'action'),
+  ] },
+  'custom-mode': { id: 'custom-mode', title: '自定义模式', stage: 'cleaning', operations: ['cleaning.start'], notes: [
+    note('步骤与时长', '步骤默认不选。清洗 19–45 分钟、蒸汽 7–10 分钟、烘干 40–70 分钟、保管 10–72 小时。支持数字输入，超限提示并限制范围。至少选择一步才能启动或预约。', 'content'),
+  ] },
+  'run-control': { id: 'run-control', title: '运行控制', stage: 'running', operations: ['running.control'], notes: [
+    note('清洗进度', '设备图下方显示步骤时间轴、剩余时长及童锁。返回列表继续计时；暂停时，自定义模式只能编辑尚未开始的步骤。模拟故障期间停止推进。', 'content'),
+    note('暂停与继续', '通过底部按钮发送控制操作；重试成功后才改变运行状态。停止仍沿用原确认弹窗。', 'action'),
+  ] },
+  'smart-mode': { id: 'smart-mode', title: '智能模式运行', stage: 'running', operations: ['running.control'], notes: [
+    note('智能进度', '统一使用设备图与蓝色步骤时间轴。进度更新期间显示骨架屏，故障时冻结计时，不生成完成状态。', 'content'),
+    note('运行操作', '暂停、继续及停止沿用原有操作，控制失败不提前写入状态。', 'action'),
+  ] },
+  settings: { id: 'settings', title: '设备设置', stage: 'settings', operations: [], notes: [
+    note('设置入口', '设备信息、宝宝物品及其他设置进入现有页面。未实现的服务入口不虚构请求。', 'content'),
+    note('水质说明', 'TDS 说明继续使用原有弹层；演示控制台不覆盖原生说明。', 'content'),
+  ] },
+  'device-info': { id: 'device-info', title: '设备信息', stage: 'settings', operations: ['device.rename'], notes: [
+    note('设备名称', '点击名称编辑；保存失败保留输入，重试成功才写入名称。', 'content'),
+    note('设备标识', 'SN 与 MAC 使用浏览器剪贴板；Wi-Fi 保留原演示提示。', 'content'),
+  ] },
+  'other-settings': { id: 'other-settings', title: '其他设置', stage: 'settings', operations: [], notes: [
+    note('语言与外观', '中英文及深色模式与手机外工具同步。均为本地设置，不模拟系统权限。', 'content'),
+  ] },
+  'baby-items': { id: 'baby-items', title: '宝宝物品', stage: 'items', operations: [], notes: [
+    note('物品列表', '按更换周期排序，进入详情可查看养护说明或编辑。新增与编辑页匹配保存异常。', 'content'),
+  ] },
+  'items-form': { id: 'items-form', title: '宝宝物品编辑', stage: 'items', operations: ['items.save'], notes: [
+    note('物品信息', '填写名称、购买日期和类别；失败时保留表单，重试成功只保存一次。', 'content'),
+    note('保存', '返回修改不提交，取消异常不清空输入。', 'action'),
+  ] },
+  notifications: { id: 'notifications', title: '系统通知', stage: 'devices', operations: [], notes: [
+    note('通知样例', '展示时间延长、未启动及完成三类原有锁屏通知，不请求真实通知权限，也不改变实际清洗状态。', 'content'),
+  ] },
+};
+const scene = (stage: Stage, suffix: string, name: string, operations: Operation[], outcome: Outcome, message: string, recovery: string): Scene => ({
+  id: `${stage}.${suffix}`, stage, name, operations, outcome,
+  delay: outcome === 'timeout' ? 4500 : outcome === 'slow' ? 5000 : 1000,
+  prerequisite: '仅作用于本页已接入的模拟操作', process: '正在处理，请稍候…', message, recovery,
+});
+export const scenes: Scene[] = [
+  scene('devices', 'loading', '持续加载中', ['devices.load'], 'loading', '正在查找演示设备', '取消等待或恢复正常后显示原设备。'),
+  scene('devices', 'empty', '没有可用设备', ['devices.load'], 'empty', '还没有可用设备', '重新查找恢复演示列表，不绑定真实设备。'),
+  scene('devices', 'failure', '设备列表加载失败', ['devices.load'], 'error', '暂时无法获取设备列表', '重试成功后显示原列表。'),
+  scene('cleaning', 'failure', '清洗启动失败', ['cleaning.start'], 'error', '设备未确认启动，清洗尚未开始。', '保留模式配置，重试后才启动。'),
+  scene('cleaning', 'timeout', '启动响应超时', ['cleaning.start'], 'timeout', '设备响应超时，本次未启动清洗。', '确认设备状态后重试，或取消。'),
+  scene('running', 'failure', '运行控制失败', ['running.control'], 'error', '设备未确认控制指令，运行状态未修改。', '重试后才应用暂停或继续指令。'),
+  scene('running', 'interrupted', '设备连接中断', ['running.control'], 'interrupted', '连接已中断，清洗进度暂不更新。', '重试恢复连接；不标记清洗完成。'),
+  scene('settings', 'rename', '设备名称保存失败', ['device.rename'], 'error', '名称未修改，编辑内容仍保留。', '继续编辑或重试，成功后才保存名称。'),
+  scene('items', 'save', '物品保存失败', ['items.save'], 'error', '物品未保存，当前输入已保留。', '修改输入或重试，成功后只保存一次。'),
+  scene('items', 'validation', '物品信息校验不通过', ['items.save'], 'validation', '模拟校验未通过，物品未保存。', '核对名称和日期后重新提交。'),
+  scene('global', 'offline', '断网（模拟）', [], 'error', '模拟网络不可用，本次操作未提交。', '模拟重连并重试，或恢复正常。'),
+  scene('global', 'weak', '弱网（模拟）', [], 'slow', '模拟网络较慢，正在等待响应。', '选择场景仅展示；恢复连接后处理操作，可随时取消。'),
+];
+export const getScene = (id: string) => scenes.find(s => s.id === id);
+export const scenesForOperations = (operations: Operation[]) => scenes.filter(s => s.stage !== 'global' && s.operations.some(op => operations.includes(op)));
