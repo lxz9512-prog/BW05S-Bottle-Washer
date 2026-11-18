@@ -1,0 +1,57 @@
+.device-home {
+  --home-bg: #fcf9f7;
+  --home-text: #121212;
+  --home-muted: #999497;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  color: var(--home-text);
+  background: var(--home-bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.device-home button { color: inherit; font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.device-home button:focus-visible { outline: 3px solid #4080ff; outline-offset: 3px; }
+.device-home .home-header { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 12px; padding: 32px 20px 0; }
+.device-home .home-header h1 { margin: 0; font-size: 24px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.device-home .home-add { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px #00000014; }
+.device-home .home-content { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 20px 120px; }
+.device-home .home-card { width: 100%; border: 0; border-radius: 20px; text-align: left; }
+.device-home .monitor-card { padding: 16px; background: #f0ecff; }
+.device-home .monitor-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.device-home .monitor-icon { display: block; width: 36px; height: 36px; flex-shrink: 0; object-fit: contain; }
+.device-home .monitor-meta { flex: 1; min-width: 0; }
+.device-home .monitor-title { margin: 0; color: #7042d8; font-size: 16px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.device-home .monitor-battery { display: flex; align-items: center; gap: 4px; margin-top: 3px; color: #7042d8; font-size: 12px; font-weight: 500; }
+.device-home .monitor-heading > svg { color: #b8a5e8; }
+.device-home .monitor-preview-frame { width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: 14px; background: #e4dfef; }
+.device-home .monitor-preview { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.3); transform-origin: center top; }
+.device-home .device-card { display: flex; align-items: center; gap: 16px; padding: 16px; margin-top: 16px; background: #e8f3ff; }
+.device-home .device-image { display: grid; place-items: center; flex-shrink: 0; width: 80px; height: 80px; border-radius: 16px; background: #fff; box-shadow: 0 1px 4px #0000000a; }
+.device-home .device-image img { width: 60px; height: 60px; object-fit: contain; }
+.device-home .device-meta { flex: 1; min-width: 0; }
+.device-home .device-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.device-home .device-title { color: #244e7c; font-size: 18px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.device-home .device-heading svg { color: #729dcc; }
+.device-home .device-status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; font-size: 12px; line-height: 1.5; }
+.device-home .device-status-dot { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; }
+.device-home .device-mode { color: #497ba8; font-size: 11px; }
+/* The frame already owns simulated or native safe-area insets. */
+.device-home .home-tabs {
+  position: absolute; bottom: 26px; left: 16px; right: 16px;
+  height: 62px; border-radius: 31px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center;
+  background: linear-gradient(135deg, #ffffff73, #ffffff40 40%, #ffffff26);
+  backdrop-filter: blur(20px) saturate(1.8); -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid #ffffff80;
+  box-shadow: 0 8px 32px #00000014, inset 0 1px 1px #ffffff99, inset 0 -1px 1px #ffffff26;
+}
+.device-home .home-tabs::before { content: ""; position: absolute; inset: 0 0 50%; border-radius: 31px 31px 0 0; background: linear-gradient(#ffffff8c, #ffffff14); pointer-events: none; }
+.device-home .home-tab { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 0; min-height: 48px; padding: 4px 0; border: 0; border-radius: 16px; background: transparent; color: var(--home-muted); }
+.device-home .home-tab span { font-size: 10px; line-height: 1; font-weight: 500; }
+.device-home .home-tab[aria-current="page"] { color: var(--home-text); }
+.device-home .home-tab-icon { display: block; width: 24px; height: 24px; object-fit: contain; }

@@ -43,13 +43,30 @@ try {
     await page.reload();
     await page.locator('[data-connector=device]').waitFor();
     await inspect(`devices-${viewport.width}`);
+    const home = page.locator('.device-home');
+    assert.equal(await home.evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(252, 249, 247)');
+    assert.equal(await home.locator('.device-card').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(232, 243, 255)');
+    assert.equal(await home.locator('.home-tab-icon').count(), 4);
+    assert.equal(await home.locator('.home-tab[aria-current=page]').innerText(), 'Device');
+    assert.ok((await home.locator('.device-image img').getAttribute('src')).includes('device-bw05s'));
+    await home.locator('.home-content').evaluate(node => { node.scrollTop = node.scrollHeight; });
+    assert.ok(await home.evaluate(node => {
+      const card = node.querySelector('[data-connector=device]').getBoundingClientRect();
+      const tabs = node.querySelector('.home-tabs').getBoundingClientRect();
+      return card.bottom <= tabs.top && tabs.bottom <= node.getBoundingClientRect().bottom;
+    }), `devices-${viewport.width}: tab bar obscures device card`);
+    await page.screenshot({ path: `tests/artifacts/app/devices-${viewport.width}.png` });
     await page.locator('[data-connector=device]').click();
     await page.locator('.bw-mode-card').first().waitFor();
+    assert.equal(await page.locator('.bw-dock').count(), 1, 'Keep the published start dock');
+    await page.locator('.bw-mode-card').first().click();
+    assert.equal(await page.getByRole('dialog').count(), 0, 'Smart mode keeps the published direct selection');
     await inspect(`home-${viewport.width}`);
     await page.screenshot({ path: `tests/artifacts/app/home-${viewport.width}.png` });
     await page.locator('.bw-mode-card').filter({ hasText: /Baby Dish|辅食碗/ }).click();
     const dialog = page.getByRole('dialog');
     await dialog.waitFor();
+    assert.equal(await dialog.getByRole('slider').count(), 0, 'Do not import the local slider interaction');
     await page.waitForTimeout(250);
     await inspect(`sheet-${viewport.width}`);
     assert.ok(await dialog.evaluate(node => {
@@ -149,6 +166,7 @@ try {
   await pc.screenshot({ path: 'tests/artifacts/app/pc-qr.png' });
   await pc.getByRole('button', { name: '关闭手机体验' }).click();
   await pc.screenshot({ path: 'tests/artifacts/app/desktop.png', fullPage: true });
+  assert.deepEqual(errors, []);
   await context.close();
   console.log(`PASS: ${checks} app layout checks, 5 viewports, quantity/start/settings/back, isolated storage, preferences, keyboard-height and ${process.env.PWA_TEST === '1' ? 'offline PWA' : 'PC entry'}.`);
 } finally { await browser.close(); }
