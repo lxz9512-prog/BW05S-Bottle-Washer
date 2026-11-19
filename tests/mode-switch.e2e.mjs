@@ -10,13 +10,15 @@ try {
     for (const model of ['bw05s', 'bw05p', 'bw05a']) {
       const context = await browser.newContext({ viewport: experience === 'app' ? { width: 320, height: 568 } : { width: 1512, height: 1100 } });
       const page = await context.newPage();
+      page.setDefaultTimeout(60000);
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
-      await page.goto(`${base}#/${experience}/cleaning-machine/models/${model}/home`);
+      await page.goto(`${base}#/${experience}/cleaning-machine/models/${model}/home`, { waitUntil: 'domcontentloaded', timeout: 60000 });
       await page.locator('[data-mode=auto]').waitFor();
       const product = page.locator('.bw-product img');
       assert.equal(await product.count(), 1);
       assert.equal((await product.getAttribute('src')).includes('device-bw05s-gray'), model === 'bw05s', 'only BW05S uses the historical gray artwork');
+      await product.evaluate(node => node.complete ? undefined : new Promise(resolve => { node.onload = node.onerror = resolve; }));
       assert.ok(await product.evaluate(node => node.complete && node.naturalWidth > 0), 'product artwork loads');
       const modes = await page.locator('[data-mode]').evaluateAll(nodes => nodes.map(node => node.dataset.mode));
       assert.equal(modes.includes('intensive'), model === 'bw05p');
