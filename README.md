@@ -1,4 +1,4 @@
-# BW05S清洗机
+# 清洗机系列
 
 从原始项目导入的清洗机交互 Demo，已支持独立本地预览，并移入「异常控制台- FD04」对话中的通用演示工具能力。清洗模式、运行控制、设备设置、宝宝物品及通知仍沿用清洗机自身页面，不包含 FD04 调奶、喂养或单位换算业务。
 
@@ -39,8 +39,11 @@ npm run dev -- --host 0.0.0.0
 
 部署产物为 `dist/`，支持 GitHub Pages、Cloudflare Pages、Vercel 等静态托管。`.github/workflows/deploy.yml` 在 `main` 分支推送时自动构建并发布 GitHub Pages，也支持手动触发。仓库已按所有者授权改为公开。
 
-- 桌面演示：https://lxz9512-prog.github.io/BW05S-Bottle-Washer/#/demo
-- 手机体验：https://lxz9512-prog.github.io/BW05S-Bottle-Washer/#/app
+- Git 仓库：https://github.com/lxz9512-prog/Bottle-Washer
+- 桌面演示：https://lxz9512-prog.github.io/Bottle-Washer/#/demo
+- 手机体验：https://lxz9512-prog.github.io/Bottle-Washer/#/app
+
+仓库改名为 `Bottle-Washer`。型号标识与历史存储命名空间保持兼容；旧 GitHub Pages 路径不保证重定向，请使用以上新入口。
 
 ```sh
 npm run build

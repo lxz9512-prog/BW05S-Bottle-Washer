@@ -1,4 +1,4 @@
-name: Deploy BW05S
+name: Deploy Cleaning Machine Series
 
 on:
   push:
@@ -67,6 +67,8 @@ jobs:
           assert.ok(assets.some(path => path.endsWith('.js')), 'Missing application script');
           assert.ok(assets.some(path => path.endsWith('.css')), 'Missing stylesheet');
           const manifest = JSON.parse(await read('manifest.webmanifest'));
+          assert.equal(manifest.name, '清洗机系列');
+          assert.equal(manifest.short_name, '清洗机系列');
           assert.equal(manifest.start_url, './#/app');
           assert.equal(manifest.display, 'standalone');
           for (const path of [...new Set([...assets, ...manifest.icons.map(icon => icon.src), 'apple-touch-icon.png', 'sw.js'])]) {
@@ -80,3 +82,7 @@ jobs:
           APP_URL: ${{ steps.deployment.outputs.page_url }}
           PWA_TEST: '1'
         run: npm run test:app:e2e
+      - name: Verify live branding and product scale
+        env:
+          APP_URL: ${{ steps.deployment.outputs.page_url }}
+        run: node tests/series-branding.e2e.mjs

@@ -12,9 +12,9 @@ export default defineConfig(({ command }) => ({
     includeAssets: ['app-icon-192.png', 'app-icon-512.png', 'apple-touch-icon.png'],
     manifest: {
       id: './#/app',
-      name: 'BW05S Bottle Washer',
-      short_name: 'BW05S',
-      description: 'BW05S bottle washer interactive experience',
+      name: '清洗机系列',
+      short_name: '清洗机系列',
+      description: '清洗机系列交互 Demo',
       start_url: './#/app',
       scope: './',
       display: 'standalone',

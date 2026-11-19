@@ -124,7 +124,7 @@ export default function Layout() {
     return () => { cancelAnimationFrame(frame); clearTimeout(timer); observer.disconnect(); window.removeEventListener('resize', update); element.removeEventListener('scroll', update, true); };
   }, [page.id, directoryOpen, consoleOpen, infoOpen, connectors, revision]);
   return <div className="demo-workspace" ref={root}>
-    <div className="workspace-header"><strong>{page.id === 'devices' ? '清洗机 Demo' : `${model.name}清洗机`}</strong><span>{page.title}</span>
+    <div className="workspace-header"><strong>清洗机系列</strong><span>{page.title}</span>
       <PreviewSwitcher />
       <nav aria-label="演示面板">
         <button title="手机体验" aria-label="手机体验二维码" onClick={() => setShareOpen(true)}><Smartphone size={18} /></button>

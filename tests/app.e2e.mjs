@@ -132,6 +132,9 @@ try {
       if (!navigator.serviceWorker.controller) await new Promise(resolve => navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true }));
     });
     const manifest = await page.evaluate(async () => (await fetch(document.querySelector('link[rel=manifest]').href)).json());
+    assert.equal(await page.title(), '清洗机系列');
+    assert.equal(manifest.name, '清洗机系列');
+    assert.equal(manifest.short_name, '清洗机系列');
     assert.equal(manifest.start_url, './#/app');
     assert.equal(manifest.display, 'standalone');
     await context.setOffline(true);

@@ -19,7 +19,7 @@ try {
       const height = image.naturalHeight * scale;
       ctx.drawImage(image, (size - width) / 2, size * .1 + (size * .64 - height) / 2, width, height);
       ctx.fillStyle = '#244e7c'; ctx.font = `600 ${size * .09}px system-ui`;
-      ctx.textAlign = 'center'; ctx.fillText('BW05S', size / 2, size * .83);
+      ctx.textAlign = 'center'; ctx.fillText('清洗机系列', size / 2, size * .83);
       return canvas.toDataURL('image/png').split(',')[1];
     }, { source: image.toString('base64'), size });
     await writeFile(new URL(`../client/public/${file}`, import.meta.url), Buffer.from(png, 'base64'));

@@ -1,6 +1,6 @@
 {
-  "name": "bw05s-cleaning-machine",
-  "description": "BW05S清洗机",
+  "name": "cleaning-machine-series",
+  "description": "清洗机系列",
   "version": "2.2.6",
   "private": true,
   "flags": {
