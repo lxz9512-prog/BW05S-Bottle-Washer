@@ -10,6 +10,9 @@ try {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(url);
+  await page.locator('.workspace-header').waitFor();
+  assert.equal(await page.locator('.tool-panel').count(), 0, 'desktop panels start collapsed');
+  await page.getByRole('button', { name: '打开异常控制台', exact: true }).click();
   await page.getByRole('heading', { name: '异常控制台' }).waitFor();
   await page.locator('[data-device-frame]').waitFor();
   assert.equal(await page.locator('.phone-stage [aria-label="演示工具"]').count(), 0);
@@ -18,6 +21,8 @@ try {
   assert.equal(await page.locator('[data-device-chrome]:visible').count(), 0);
   await page.reload();
   await page.locator('[data-device-screen]').waitFor();
+  assert.equal(await page.locator('.tool-panel').count(), 0, 'refresh collapses panels again');
+  await page.getByRole('button', { name: '打开异常控制台', exact: true }).click();
   assert.equal(await page.getByRole('switch', { name: '显示手机边框' }).isChecked(), false);
   await page.getByRole('switch', { name: '显示手机边框' }).check();
   assert.equal(await page.locator('[data-device-chrome]:visible').count(), 5);
@@ -53,7 +58,7 @@ try {
   await go('设备列表');
   await page.getByLabel('异常场景', { exact: true }).selectOption('global.weak');
   await page.locator('.console-panel').getByRole('button', { name: '恢复连接', exact: true }).click();
-  await page.locator('[data-connector=device]').waitFor();
+  await page.locator('[data-model=bw05s]').waitFor();
   await page.getByRole('tab', { name: '本页场景', exact: true }).click();
   await page.getByLabel('异常场景', { exact: true }).selectOption('devices.failure');
   await page.locator('[data-operation-state]').getByText('暂时无法获取设备列表').waitFor();
@@ -63,7 +68,7 @@ try {
   assert.match(await page.locator('[data-operation-state]').innerText(), /暂时无法获取/);
   await page.getByLabel('重试结果').selectOption('success');
   await page.locator('.console-panel').getByRole('button', { name: '重试', exact: true }).click();
-  await page.locator('[data-connector=device]').waitFor();
+  await page.locator('[data-model=bw05s]').waitFor();
   await page.screenshot({ path: 'tests/artifacts/desktop.png', fullPage: true });
   await go('模式选择');
   await page.getByLabel('异常场景', { exact: true }).selectOption('cleaning.failure');
@@ -79,7 +84,7 @@ try {
   });
   assert.equal(overlayBounds.contained, true, 'mode sheet must stay inside phone');
   await checkFraming();
-  await page.locator('[data-device-screen] button').filter({ has: page.locator('svg.lucide-x') }).click();
+  await page.getByRole('button', { name: '收起浮窗', exact: true }).click();
   await page.locator('[data-mode-overlay]').waitFor({ state: 'hidden' });
   await page.waitForTimeout(350);
   await page.locator('[data-device-screen]').getByRole('button', { name: /Standard|标准/ }).first().click();
@@ -129,13 +134,13 @@ try {
   assert.equal(await page.evaluate(() => localStorage.getItem('BW05S_demo_v1:items')), null);
   assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('BW05S_demo_v1:device-name'))), 'BW05S Test');
   await page.locator('.console-panel').getByRole('button', { name: '重置整个 Demo', exact: true }).click();
-  await page.locator('[data-connector=device]').waitFor();
+  await page.locator('[data-model=bw05s]').waitFor();
   assert.equal(await page.evaluate(() => localStorage.getItem('BW05S_demo_v1:device-name')), null);
   assert.equal(await page.evaluate(() => localStorage.getItem('unrelated-test')), 'keep');
   await page.getByLabel('异常场景', { exact: true }).selectOption('devices.loading');
   await page.locator('.console-panel').getByRole('button', { name: '重置整个 Demo', exact: true }).click();
   await page.waitForTimeout(1200);
-  await page.locator('[data-connector=device]').waitFor();
+  await page.locator('[data-model=bw05s]').waitFor();
   await page.getByRole('button', { name: '隐藏控制台', exact: true }).click();
   await page.getByRole('button', { name: '打开异常控制台', exact: true }).click();
   await page.getByRole('button', { name: '折叠控制台', exact: true }).click();

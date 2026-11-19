@@ -13,18 +13,21 @@ import { cleaningMachineStore } from '../pages/DemoShowcasePage/cleaning-machine
 import { useLocale } from '../pages/DemoShowcasePage/useLocale';
 import { useDarkMode } from '../pages/DemoShowcasePage/useDarkMode';
 import { useMachineClock } from '../pages/DemoShowcasePage/useMachineClock';
+import { getMachineModel, machinePath, supportsMode } from '../pages/DemoShowcasePage/machine-models';
+import PreviewSwitcher from './PreviewSwitcher';
 
-const directory = ['devices', 'home', 'custom-mode', 'smart-mode', 'run-control', 'settings', 'device-info', 'baby-items', 'other-settings', 'notifications'];
+const directory = ['devices', 'home', 'custom-mode', 'smart-mode', 'run-control', 'settings', 'consumables', 'device-info', 'baby-items', 'other-settings', 'notifications'];
 export default function Layout() {
   const machine = useMachineClock();
+  const model = getMachineModel();
   const navigate = useNavigate();
   const page = usePage();
   const { revision } = useDemo();
   const { locale, setLocale } = useLocale();
   const { darkMode, toggleDarkMode } = useDarkMode();
-  const [directoryOpen, setDirectoryOpen] = useState(() => window.innerWidth >= 1400);
-  const [consoleOpen, setConsoleOpen] = useState(() => window.innerWidth >= 1200);
-  const [infoOpen, setInfoOpen] = useState(() => window.innerWidth >= 1200);
+  const [directoryOpen, setDirectoryOpen] = useState(false);
+  const [consoleOpen, setConsoleOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [connectors, setConnectors] = useState(() => demoLocal.get('connectors', true));
   const [showPhoneFrame, setShowPhoneFrame] = useState(() => demoLocal.get('show-phone-frame', true));
   const [paths, setPaths] = useState<string[]>([]);
@@ -34,7 +37,7 @@ export default function Layout() {
   const launcher = useRef<HTMLButtonElement>(null);
   const [shareOpen, setShareOpen] = useState(false);
   const shareDialog = useRef<HTMLDialogElement>(null);
-  const mobileUrl = new URL('#/app', window.location.href);
+  const mobileUrl = new URL(page.id === 'devices' ? '#/app' : `#/app/cleaning-machine/models/${model.id}/home`, window.location.href);
   if (import.meta.env.DEV && import.meta.env.DEV_LAN_HOST && ['localhost', '127.0.0.1', '[::1]'].includes(mobileUrl.hostname)) mobileUrl.hostname = import.meta.env.DEV_LAN_HOST;
   const appUrl = mobileUrl.href;
   useEffect(() => {
@@ -49,11 +52,18 @@ export default function Layout() {
       const availableHeight = Math.max(480, window.innerHeight - top - bottomSpace);
       setPhoneScale(Math.min(1, Math.max(1, element.clientWidth - 8) / 393, availableHeight / 852));
     };
-    const observer = new ResizeObserver(fit);
+    let frame = 0;
+    const scheduleFit = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(fit);
+    };
+    const observer = new ResizeObserver(scheduleFit);
     observer.observe(element);
-    window.addEventListener('resize', fit);
+    const header = root.current?.querySelector('.workspace-header');
+    if (header) observer.observe(header);
+    window.addEventListener('resize', scheduleFit);
     fit();
-    return () => { observer.disconnect(); window.removeEventListener('resize', fit); };
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('resize', scheduleFit); };
   }, []);
   useEffect(() => {
     const compact = window.matchMedia('(max-width: 1199px)');
@@ -73,8 +83,7 @@ export default function Layout() {
     if (id === 'devices' || id === 'notifications') navigate(entryPath(id === 'devices' ? '/' : '/notifications'));
     else {
       cleaningMachineStore.set({ activeScreen: id });
-      window.dispatchEvent(new CustomEvent('bw05s:navigate', { detail: id }));
-      navigate(entryPath('/cleaning-machine'));
+      navigate(machinePath(id));
     }
     setDemoPage(id);
     if (window.innerWidth < 1200) setDirectoryOpen(false);
@@ -115,7 +124,8 @@ export default function Layout() {
     return () => { cancelAnimationFrame(frame); clearTimeout(timer); observer.disconnect(); window.removeEventListener('resize', update); element.removeEventListener('scroll', update, true); };
   }, [page.id, directoryOpen, consoleOpen, infoOpen, connectors, revision]);
   return <div className="demo-workspace" ref={root}>
-    <div className="workspace-header"><strong>BW05S清洗机</strong><span>{page.title}</span>
+    <div className="workspace-header"><strong>{page.id === 'devices' ? '清洗机 Demo' : `${model.name}清洗机`}</strong><span>{page.title}</span>
+      <PreviewSwitcher />
       <nav aria-label="演示面板">
         <button title="手机体验" aria-label="手机体验二维码" onClick={() => setShareOpen(true)}><Smartphone size={18} /></button>
         <button title="页面目录" aria-label="页面目录" aria-pressed={directoryOpen} onClick={() => { setDirectoryOpen(!directoryOpen); if (window.innerWidth < 1200) { setConsoleOpen(false); setInfoOpen(false); } }}><ListTree size={18} /></button>
@@ -125,7 +135,7 @@ export default function Layout() {
     </div>
     <div className={`workspace-grid ${directoryOpen ? 'with-directory' : ''} ${consoleOpen ? 'with-console' : ''} ${infoOpen ? 'with-info' : ''}`}>
       {directoryOpen && <aside className="tool-panel directory-panel" aria-label="页面目录"><header><ListTree size={16} /><h2>页面目录</h2><button title="关闭目录" aria-label="关闭目录" onClick={() => setDirectoryOpen(false)}><X size={16} /></button></header>
-        <nav>{directory.map(id => <button key={id} className={page.id === id ? 'selected' : ''} onClick={() => go(id)}>{pages[id].title}</button>)}</nav>
+        <nav>{directory.filter(id => id !== 'smart-mode' || supportsMode('smart')).map(id => <button key={id} className={page.id === id ? 'selected' : ''} onClick={() => go(id)}>{pages[id].title}</button>)}</nav>
       </aside>}
       {consoleOpen && <ScenarioConsole onClose={closeConsole} tools={
         <div className="console-toolbar" role="toolbar" aria-label="演示工具">
@@ -134,7 +144,7 @@ export default function Layout() {
           <button title="交互连线" aria-label="交互连线" aria-pressed={connectors} onClick={() => { const next = !connectors; demoLocal.set('connectors', next); setConnectors(next); }}><Cable size={18} /></button>
           <button title="重置整个 Demo" aria-label="重置整个 Demo" onClick={() => { resetDemo(); setConnectors(true); }}><RotateCcw size={18} /></button>
           <label className="phone-frame-toggle"><span>显示手机边框</span><input type="checkbox" role="switch" checked={showPhoneFrame} onChange={event => { const next = event.target.checked; demoLocal.set('show-phone-frame', next); setShowPhoneFrame(next); }} /></label>
-          <label className="phone-frame-toggle"><span>设备设计状态</span><select aria-label="设备设计状态" value={machine.presentation} onChange={event => cleaningMachineStore.set({ presentation: event.target.value as typeof machine.presentation })}><option value="normal">正常</option><option value="offline">设备离线</option><option value="error-df">DF 故障</option><option value="error-af">AF 故障</option><option value="filter-soon">软水滤芯即将到期</option><option value="filter-expired">软水滤芯已到期</option></select></label>
+          <label className="phone-frame-toggle"><span>设备设计状态</span><select aria-label="设备设计状态" value={machine.presentation} onChange={event => cleaningMachineStore.set({ presentation: event.target.value as typeof machine.presentation })}><option value="normal">正常</option><option value="offline">设备离线</option><option value="error-df">DF 故障</option><option value="error-af">AF 故障</option>{(model.consumables as readonly string[]).includes('water') && <><option value="filter-soon">软水滤芯即将到期</option><option value="filter-expired">软水滤芯已到期</option></>}</select></label>
         </div>
       } />}
       <main ref={stage} className="phone-stage" data-show-phone-frame={showPhoneFrame} style={{ '--phone-scale': phoneScale } as CSSProperties}>

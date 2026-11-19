@@ -9,6 +9,14 @@ export function resolveEntry(hash: string, compact: boolean) {
   return { mode: 'demo' as const, base: '' };
 }
 
+export function experienceHash(hash: string, mode: 'app' | 'demo') {
+  const route = hash.replace(/^#/, '').replace(/^\/(?:app|demo)(?=\/|\?|$)/, '');
+  const [path] = route.split('?');
+  const businessRoute = /^\/cleaning-machine(?:\/|$)/.test(path);
+  const notifications = mode === 'demo' && path === '/notifications';
+  return `#/${mode}${businessRoute || notifications ? route : ''}`;
+}
+
 const entry = resolveEntry(window.location.hash, window.matchMedia('(max-width: 768px)').matches);
 export const isApp = entry.mode === 'app';
 export const entryBase = entry.base;

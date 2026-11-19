@@ -7,7 +7,7 @@ import { useDarkMode } from './useDarkMode';
 import { BABY_ITEMS_DARK_THEME } from './dark-themes';
 import { BABY_ITEMS_LIGHT_THEME } from './light-themes';
 import { useDemoPage } from '../../demo/react';
-import { demoLocal } from '../../demo/storage';
+import { machineLocal as demoLocal } from './machine-models';
 import { demoEngine } from '../../demo/engine';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { isApp } from '../../runtime';

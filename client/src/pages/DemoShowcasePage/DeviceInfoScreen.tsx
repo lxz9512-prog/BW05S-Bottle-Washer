@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Copy, Wifi, Edit3, Check } from 'lucide-react';
-import deviceImage from '@client/src/assets/device-bw05s.png';
 import { usePhoneToast } from './usePhoneToast';
 import { useLocale } from './useLocale';
 import { useDarkMode } from './useDarkMode';
 import { DEVICE_INFO_DARK_THEME } from './dark-themes';
 import { DEVICE_INFO_LIGHT_THEME } from './light-themes';
 import { OperationState, useOperation } from '../../demo/react';
-import { demoLocal } from '../../demo/storage';
+import { getDeviceName, getMachineModel, machineLocal } from './machine-models';
 import { demoEngine } from '../../demo/engine';
 
 interface DeviceInfoScreenProps {
@@ -15,21 +14,19 @@ interface DeviceInfoScreenProps {
 }
 
 const MOCK_DEVICE = {
-  name: 'BW05S',
-  model: 'BW05S',
-  sn: 'BW05S2024031500128',
   mac: 'A4:C1:38:7B:2F:9E',
   wifi: 'Home_Network_5G',
   firmware: 'v2.1.3',
 };
 
 const DeviceInfoScreen = ({ onBack }: DeviceInfoScreenProps) => {
-  const [deviceName, setDeviceName] = useState(() => demoLocal.get('device-name', MOCK_DEVICE.name));
+  const model = getMachineModel();
+  const [deviceName, setDeviceName] = useState(() => getDeviceName());
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(deviceName);
   const inputRef = useRef<HTMLInputElement>(null);
   const { showToast, ToastElement } = usePhoneToast();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { darkMode } = useDarkMode();
   const THEME_VALUES = darkMode ? DEVICE_INFO_DARK_THEME : DEVICE_INFO_LIGHT_THEME;
 
@@ -43,7 +40,7 @@ const DeviceInfoScreen = ({ onBack }: DeviceInfoScreenProps) => {
   const commitName = () => {
     const trimmed = editValue.trim();
     if (!trimmed) return;
-    demoLocal.set('device-name', trimmed); setDeviceName(trimmed); setIsEditing(false);
+    machineLocal.set('device-name', trimmed); setDeviceName(trimmed); setIsEditing(false);
   };
   const save = useOperation({ operation: 'device.rename', stage: 'settings', label: '保存设备名称', success: commitName, ready: () => isEditing && !!editValue.trim(), edit: () => setIsEditing(true) });
   const dismissEdit = () => {
@@ -90,7 +87,7 @@ const DeviceInfoScreen = ({ onBack }: DeviceInfoScreenProps) => {
     },
     {
       label: t('device.info.sn'),
-      value: MOCK_DEVICE.sn,
+      value: `${model.name}2024031500128`,
       copyable: true,
       copyLabel: 'SN',
     },
@@ -114,6 +111,7 @@ const DeviceInfoScreen = ({ onBack }: DeviceInfoScreenProps) => {
       {ToastElement}
       <div className="shrink-0 flex items-center justify-between px-4 pt-3 pb-3" style={{ backgroundColor: THEME_VALUES.bg }}>
         <button
+          aria-label={locale === 'en' ? 'Back' : '返回'}
           onClick={onBack}
           className="w-10 h-10 flex items-center justify-center rounded-full active:scale-95 transition-transform"
         >
@@ -128,7 +126,7 @@ const DeviceInfoScreen = ({ onBack }: DeviceInfoScreenProps) => {
       <div className="flex-1 overflow-y-auto pb-8">
         <div className="flex flex-col items-center pt-4 pb-5">
           <div className="flex items-center justify-center mb-4">
-            <img src={deviceImage} alt="Device" className="w-28 h-28 object-contain" />
+            <img src={model.image} alt={model.name} className="w-28 h-28 object-contain" />
           </div>
 
         </div>

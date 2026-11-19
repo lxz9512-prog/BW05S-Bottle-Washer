@@ -1,12 +1,23 @@
 import { DEFAULT_CUSTOM_MODES, type SubModeConfig } from './demo-constants';
 
 export function cycleSteps(mode: string | null, custom: SubModeConfig[] | null): SubModeConfig[] {
-  if (mode === 'custom') return (custom ?? DEFAULT_CUSTOM_MODES).map(step => ({ ...step }));
+  if (custom || isCustomMode(mode)) return (custom ?? DEFAULT_CUSTOM_MODES).map(step => ({
+    ...step,
+    enabled: step.id === 'wash' && !!mode && !isCustomMode(mode) && mode !== 'sterilize-dry' ? true : step.enabled,
+  }));
   return DEFAULT_CUSTOM_MODES.map(step => ({
     ...step,
-    enabled: mode === 'self-clean' ? step.id === 'wash' : true,
+    enabled: mode === 'self-clean' ? step.id === 'wash' : mode === 'sterilize-dry' ? step.id !== 'wash' : true,
     duration: step.id === 'wash' && mode === 'rapid' ? 19 : step.duration,
   }));
+}
+
+export function isCustomMode(mode: string | null) {
+  return ['custom', 'custom-2', 'custom-3'].includes(mode ?? '');
+}
+
+export function cycleMinutes(steps: SubModeConfig[]) {
+  return steps.reduce((total, step) => total + (step.enabled && step.unit === 'min' ? step.duration : 0), 0);
 }
 
 export function stepSeconds(step: SubModeConfig) {
@@ -40,4 +51,15 @@ export function lockedCycleSteps(steps: SubModeConfig[], elapsed: number) {
   const current = statuses.findIndex(item => item.status === 'active');
   const last = current < 0 ? steps.length - 1 : current;
   return Object.fromEntries(steps.flatMap((step, index) => index <= last ? [[step.id, statuses[index].status]] : []));
+}
+
+export function pausedCycleEdits(mode: string | null, steps: SubModeConfig[], draft: SubModeConfig[], elapsed: number) {
+  const locked = lockedCycleSteps(steps, elapsed);
+  const custom = isCustomMode(mode);
+  const available = cycleSteps(mode, null);
+  return steps.map(step => {
+    const edit = draft.find(item => item.id === step.id);
+    if (!edit || locked[step.id] || (!custom && (step.id === 'wash' || !available.find(item => item.id === step.id)?.enabled))) return { ...step };
+    return { ...step, enabled: edit.enabled, duration: custom || step.id === 'keep-warm' ? normalizeDuration(String(edit.duration), step).value : step.duration };
+  });
 }

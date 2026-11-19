@@ -5,6 +5,7 @@ import { pages, getScene, type Operation, type Stage } from './catalog';
 import { cleaningMachineStore } from '../pages/DemoShowcasePage/cleaning-machine-store';
 import { localeStore } from '../pages/DemoShowcasePage/locale-store';
 import { demoLocal } from './storage';
+import { machineLocal } from '../pages/DemoShowcasePage/machine-models';
 import { entryPath, isApp } from '../runtime';
 
 demoEngine.setScenariosEnabled(!isApp);
@@ -67,14 +68,14 @@ export function resetDemo(stage?: Stage) {
   demoEngine.normal();
   if (!stage) {
     demoLocal.clear();
-    cleaningMachineStore.reset();
+    cleaningMachineStore.reset(true);
     localeStore.reset();
     window.location.hash = entryPath();
     setDemoPage('devices');
   } else {
     if (stage === 'cleaning' || stage === 'running') cleaningMachineStore.reset();
-    if (stage === 'settings') { demoLocal.remove('device-name'); localeStore.reset(); }
-    if (stage === 'items') demoLocal.remove('items');
+    if (stage === 'settings') { machineLocal.remove('device-name'); localeStore.reset(); }
+    if (stage === 'items') machineLocal.remove('items');
   }
   demoEngine.reset(stage);
 }

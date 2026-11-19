@@ -12,6 +12,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1512, height: 1100 } });
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(process.env.DEMO_URL ?? 'http://127.0.0.1:5173/#/demo');
+  await page.getByRole('button', { name: '打开异常控制台', exact: true }).click();
   await page.locator('.console-toolbar').waitFor();
   const go = async title => {
     if (!await page.locator('.directory-panel').isVisible()) await page.getByRole('button', { name: '页面目录', exact: true }).click();
@@ -62,6 +63,7 @@ try {
         bottom: difference(color(image.width * .25, image.height - 22 * scale), color(image.width * .25, image.height - 18 * scale)),
       };
     }, shot.toString('base64'));
+    if (seams.top > 8 || seams.bottom > 8) await screen.screenshot({ path: `${directory}/failure-${name}.png` });
     assert.ok(seams.top <= 8 && seams.bottom <= 8, `${name}: background seam ${JSON.stringify(seams)}`);
     if (capture) {
       await screen.screenshot({ path: `${directory}/${name}.png` });
@@ -81,7 +83,7 @@ try {
     });
     assert.ok(results.every(result => result.reachable && result.inside), `${name}: inaccessible scroll end ${JSON.stringify(results)}`);
   };
-  const titles = ['设备列表', '模式选择', '自定义模式', '智能模式运行', '运行控制', '设备设置', '设备信息', '宝宝物品', '其他设置', '系统通知'];
+  const titles = ['设备列表', '模式选择', '自定义模式', '智能模式运行', '运行控制', '设备设置', '耗材管理', '设备信息', '宝宝物品', '其他设置', '系统通知'];
   for (const compact of [false, true]) {
     await page.setViewportSize(compact ? { width: 375, height: 667 } : { width: 1512, height: 1100 });
     await page.waitForTimeout(200);

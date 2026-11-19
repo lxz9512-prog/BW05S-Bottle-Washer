@@ -25,18 +25,18 @@ export interface DemoPage {
 const note = (title: string, body: string, target: string) => ({ title, body, target });
 export const pages: Record<string, DemoPage> = {
   devices: { id: 'devices', title: '设备列表', stage: 'devices', operations: ['devices.load'], notes: [
-    note('清洗机入口', '点击清洗机卡片进入控制页。运行或暂停状态与设备控制共享。', 'device'),
+    note('清洗机入口', 'BW05S、BW05P、BW05A 各有独立设备入口。运行、预约与自定义模式按型号保存，返回设备列表后继续计时。', 'device'),
     note('列表状态', '加载、空态和失败场景替换列表内容；恢复正常不重放启动操作。', 'content'),
   ] },
   home: { id: 'home', title: '模式选择', stage: 'cleaning', operations: ['cleaning.start'], notes: [
-    note('模式选择', '保留推荐、日常与精细护理分组，选中模式后使用底部开始按钮。', 'content'),
-    note('启动与预约', '普通模式直接启动；精细护理先选数量或材质。时钟入口可预约 1/3/6 小时或自定义时间，预约可修改或直接取消。启动失败保留配置。', 'action'),
+    note('模式选择', '点击任意模式打开底部浮窗；预设模式名称固定，自定义模式仅可在浮窗内改名并本地保存，最多保存三个自定义模式。', 'content'),
+    note('启动与预约', '浮窗统一提供定时启动与启动。预设清洗步骤不可取消，其余步骤可选，固定时长不可修改；保管单独设置且不计入清洗周期。启动失败保留配置。', 'action'),
   ] },
   'custom-mode': { id: 'custom-mode', title: '自定义模式', stage: 'cleaning', operations: ['cleaning.start'], notes: [
     note('步骤与时长', '步骤默认不选。清洗 19–45 分钟、蒸汽 7–10 分钟、烘干 40–70 分钟、保管 10–72 小时。支持数字输入，超限提示并限制范围。至少选择一步才能启动或预约。', 'content'),
   ] },
   'run-control': { id: 'run-control', title: '运行控制', stage: 'running', operations: ['running.control'], notes: [
-    note('清洗进度', '设备图下方显示步骤时间轴、剩余时长及童锁。返回列表继续计时；暂停时，自定义模式只能编辑尚未开始的步骤。模拟故障期间停止推进。', 'content'),
+    note('清洗进度', '设备图下方显示步骤时间轴与剩余时长。返回设备列表继续计时；暂停时，自定义模式只能编辑尚未开始的步骤。模拟故障期间停止推进。', 'content'),
     note('暂停与继续', '通过底部按钮发送控制操作；重试成功后才改变运行状态。停止仍沿用原确认弹窗。', 'action'),
   ] },
   'smart-mode': { id: 'smart-mode', title: '智能模式运行', stage: 'running', operations: ['running.control'], notes: [
@@ -45,7 +45,10 @@ export const pages: Record<string, DemoPage> = {
   ] },
   settings: { id: 'settings', title: '设备设置', stage: 'settings', operations: [], notes: [
     note('设置入口', '设备信息、宝宝物品及其他设置进入现有页面。未实现的服务入口不虚构请求。', 'content'),
-    note('水质说明', 'TDS 说明继续使用原有弹层；演示控制台不覆盖原生说明。', 'content'),
+    note('耗材管理', '进入耗材管理页查看当前型号耗材的剩余次数，点击卡片查看详情。返回保留来源与清洗状态。', 'content'),
+  ] },
+  consumables: { id: 'consumables', title: '耗材管理', stage: 'settings', operations: [], notes: [
+    note('耗材寿命', 'HEPA 按 360 次计算，演示剩余 216 次。支持软水滤芯的型号按 60 次计算，演示剩余 36 次。仅点击卡片时打开详情。', 'content'),
   ] },
   'device-info': { id: 'device-info', title: '设备信息', stage: 'settings', operations: ['device.rename'], notes: [
     note('设备名称', '点击名称编辑；保存失败保留输入，重试成功才写入名称。', 'content'),

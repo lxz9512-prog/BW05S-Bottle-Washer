@@ -6,8 +6,9 @@ html[data-experience=app], html[data-experience=app] body, html[data-experience=
 .mobile-app .device-content { overflow: hidden; }
 .mobile-app .app-page-body { padding-bottom: 0 !important; }
 .mobile-app .bw-dock { padding-bottom: 16px; }
-.mobile-app .bw-sheet { padding-bottom: 20px; max-height: calc(100% - 12px); }
-.mobile-app .bw-sheet-heading { margin-bottom: 18px; }
+.mobile-app .bw-device .bw-sheet { padding: 0; max-height: calc(100% - 48px); }
+.mobile-app .bw-sheet-footer { padding-bottom: 20px; }
+.mobile-app .bw-sheet-heading { margin-bottom: 4px; }
 .mobile-app input, .mobile-app textarea, .mobile-app select { font-size: 16px; }
 .mobile-app button { touch-action: manipulation; cursor: pointer; }
 .mobile-app .device-content [data-screen-overlay] { top: 0; }

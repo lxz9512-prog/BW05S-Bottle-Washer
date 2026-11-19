@@ -5,6 +5,7 @@ import { useDarkMode } from '../pages/DemoShowcasePage/useDarkMode';
 import { useLocale } from '../pages/DemoShowcasePage/useLocale';
 import { RouteBoundary } from '../demo/react';
 import './mobile.css';
+import PreviewSwitcher from './PreviewSwitcher';
 
 export default function MobileLayout() {
   useMachineClock();
@@ -32,5 +33,8 @@ export default function MobileLayout() {
       window.removeEventListener('resize', update);
     };
   }, []);
-  return <main className={`mobile-app ${darkMode ? 'app-dark' : ''}`}><RouteBoundary><Outlet /></RouteBoundary></main>;
+  return <div className="mobile-preview">
+    <header className="mobile-preview-header"><strong>清洗机 Demo</strong><PreviewSwitcher /></header>
+    <div className="mobile-preview-stage"><main className={`mobile-app ${darkMode ? 'app-dark' : ''}`}><RouteBoundary><Outlet /></RouteBoundary></main></div>
+  </div>;
 }

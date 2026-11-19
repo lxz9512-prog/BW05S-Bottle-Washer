@@ -7,6 +7,7 @@ import soother from '../../assets/mode-icons/bottles.png';
 import babyDish from '../../assets/mode-icons/food-bowl.png';
 import careProducts from '../../assets/mode-icons/delicate-wash.png';
 import custom from '../../assets/mode-icons/custom.png';
+import { Wind, Droplets } from 'lucide-react';
 
 const icons: Record<string, string> = {
   smart, auto: normal, rapid, 'self-clean': selfClean, baby: breastParts,
@@ -14,5 +15,7 @@ const icons: Record<string, string> = {
 };
 
 export function ModeIcon({ mode }: { mode: string }) {
-  return <img aria-hidden="true" className="bw-mode-icon" src={icons[mode]} alt="" />;
+  if (mode === 'intensive') return <Droplets className="bw-mode-icon bw-vector-icon" aria-hidden="true" />;
+  if (mode === 'sterilize-dry') return <Wind className="bw-mode-icon bw-vector-icon" aria-hidden="true" />;
+  return <img aria-hidden="true" className="bw-mode-icon" src={icons[mode] ?? custom} alt="" />;
 }

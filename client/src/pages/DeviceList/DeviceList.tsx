@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { ChevronRight, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import IPhoneFrame from "@client/src/components/IPhoneFrame";
 import { cleaningMachineStore } from "../DemoShowcasePage/cleaning-machine-store";
 import type { CleaningMachineState } from "../DemoShowcasePage/cleaning-machine-store";
-import deviceImage from '../../assets/device-bw05s.png';
 import { OperationState, useDemo, useDemoPage, useOperation } from '../../demo/react';
 import { cycleProgress, cycleSteps } from '../DemoShowcasePage/machine-cycle';
-import { entryPath } from '../../runtime';
 import monitorPreview from '../../assets/monitor-preview.jpg';
 import monitorCamera from '../../assets/mobile-home/monitor-camera.png';
 import tabHome from '../../assets/mobile-home/tab-home.png';
@@ -16,6 +14,7 @@ import tabDevice from '../../assets/mobile-home/tab-device.png';
 import tabCommunity from '../../assets/mobile-home/tab-community.png';
 import tabMe from '../../assets/mobile-home/tab-me.png';
 import './device-home.css';
+import { MACHINE_MODELS, getDeviceName, machinePath } from '../DemoShowcasePage/machine-models';
 
 const MODE_LABELS: Record<string, string> = {
   smart: 'Smart Mode',
@@ -35,26 +34,23 @@ const DeviceList: React.FC = () => {
   useOperation({ operation: 'devices.load', stage: 'devices', label: '查找设备', success: () => {} });
   const { active } = useDemo();
   const navigate = useNavigate();
-  const [machineState, setMachineState] = useState<CleaningMachineState>(cleaningMachineStore.get());
-
-  useEffect(() => {
-    const unsubscribe = cleaningMachineStore.subscribe(() => {
-      setMachineState(cleaningMachineStore.get());
-    });
-    setMachineState(cleaningMachineStore.get());
-    return unsubscribe;
-  }, []);
+  const machines = useSyncExternalStore(cleaningMachineStore.subscribe, cleaningMachineStore.getAllSnapshot);
+  const deviceStatus = (machineState: CleaningMachineState) => {
   const isDeviceActive = machineState.cycleActive || !!machineState.scheduleAt;
   const complete = cycleProgress(cycleSteps(machineState.selectedMode, machineState.customConfig), machineState.elapsedSeconds).complete;
+  const lastUsed = machineState.lastUsedAt ? new Date(machineState.lastUsedAt) : null;
+  const lastUsedLabel = lastUsed?.toLocaleString([], { ...(lastUsed.toDateString() === new Date().toDateString() ? {} : { month: 'short' as const, day: 'numeric' as const }), hour: '2-digit', minute: '2-digit', hour12: false });
   const statusText = machineState.scheduleAt ? 'Scheduled' : isDeviceActive
     ? (complete ? 'Done' : machineState.isRunning ? 'In Progress' : 'Paused')
-    : 'Standby';
+    : lastUsed ? `Last used · ${lastUsedLabel}` : 'Not used yet';
   const statusColor = isDeviceActive
     ? (machineState.isRunning || machineState.scheduleAt ? '#287dcc' : '#b56c15')
     : '#9E9E9E';
   const modeLabel = machineState.selectedMode
     ? (machineState.modeConfig?.modeLabel || MODE_LABELS[machineState.selectedMode] || '')
     : '';
+    return { isDeviceActive, statusText, statusColor, modeLabel };
+  };
 
   return (
     <IPhoneFrame background="#fcf9f7">
@@ -89,19 +85,24 @@ const DeviceList: React.FC = () => {
             </div>
           </div>
 
-          <motion.button
+          {MACHINE_MODELS.map(model => {
+            const machineState = machines[model.id];
+            const { isDeviceActive, statusText, statusColor, modeLabel } = deviceStatus(machineState);
+            return <motion.button
+            key={model.id}
             type="button"
+            data-model={model.id}
             data-connector="device"
             whileTap={{ scale: 0.98 }}
-            onClick={() => { const screen = isDeviceActive ? machineState.selectedMode === 'smart' ? 'smart-mode' : 'run-control' : 'home'; cleaningMachineStore.set({ activeScreen: screen }); navigate(entryPath(`/cleaning-machine/${screen}`)); }}
+            onClick={() => { const screen = isDeviceActive ? machineState.selectedMode === 'smart' ? 'smart-mode' : 'run-control' : 'home'; cleaningMachineStore.set({ activeScreen: screen }, model.id); navigate(machinePath(screen, model.id)); }}
             className="home-card device-card"
           >
             <span className="device-image">
-              <img src={deviceImage} alt="Cleaning Machine" />
+              <img src={model.image} alt={model.name} />
             </span>
             <span className="device-meta">
               <span className="device-heading">
-                <span className="device-title">Cleaning Machine</span>
+                <span className="device-title">{getDeviceName(model.id)}</span>
                 <ChevronRight size={20} aria-hidden="true" />
               </span>
               <span className="device-status">
@@ -110,7 +111,8 @@ const DeviceList: React.FC = () => {
                 {isDeviceActive && modeLabel && <span className="device-mode">· {modeLabel}</span>}
               </span>
             </span>
-          </motion.button>
+          </motion.button>;
+          })}
           </>}
         </section>
 

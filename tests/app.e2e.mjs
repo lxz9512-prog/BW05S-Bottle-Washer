@@ -41,29 +41,27 @@ try {
     await page.setViewportSize(viewport);
     await page.goto(`${base}#/app`);
     await page.reload();
-    await page.locator('[data-connector=device]').waitFor();
+    await page.locator('[data-model=bw05s]').waitFor();
     await inspect(`devices-${viewport.width}`);
     const home = page.locator('.device-home');
     assert.equal(await home.evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(252, 249, 247)');
-    assert.equal(await home.locator('.device-card').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(232, 243, 255)');
+    assert.equal(await home.locator('[data-model=bw05s]').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(232, 243, 255)');
     assert.equal(await home.locator('.home-tab-icon').count(), 4);
     assert.equal(await home.locator('.home-tab[aria-current=page]').innerText(), 'Device');
-    assert.ok((await home.locator('.device-image img').getAttribute('src')).includes('device-bw05s'));
+    assert.ok((await home.locator('[data-model=bw05s] .device-image img').getAttribute('src')).includes('device-bw05s'));
     await home.locator('.home-content').evaluate(node => { node.scrollTop = node.scrollHeight; });
     assert.ok(await home.evaluate(node => {
-      const card = node.querySelector('[data-connector=device]').getBoundingClientRect();
+      const card = node.querySelector('[data-model=bw05a]').getBoundingClientRect();
       const tabs = node.querySelector('.home-tabs').getBoundingClientRect();
       return card.bottom <= tabs.top && tabs.bottom <= node.getBoundingClientRect().bottom;
     }), `devices-${viewport.width}: tab bar obscures device card`);
     await page.screenshot({ path: `tests/artifacts/app/devices-${viewport.width}.png` });
-    await page.locator('[data-connector=device]').click();
+    await page.locator('[data-model=bw05s]').click();
     await page.locator('.bw-mode-card').first().waitFor();
-    assert.equal(await page.locator('.bw-dock').count(), 1, 'Keep the published start dock');
-    await page.locator('.bw-mode-card').first().click();
-    assert.equal(await page.getByRole('dialog').count(), 0, 'Smart mode keeps the published direct selection');
+    assert.equal(await page.locator('.bw-dock').count(), 0, 'Selection has no start dock');
     await inspect(`home-${viewport.width}`);
     await page.screenshot({ path: `tests/artifacts/app/home-${viewport.width}.png` });
-    await page.locator('.bw-mode-card').filter({ hasText: /Baby Dish|辅食碗/ }).click();
+    await page.locator('[data-mode="food-bowl"] .bw-mode-open').click();
     const dialog = page.getByRole('dialog');
     await dialog.waitFor();
     assert.equal(await dialog.getByRole('slider').count(), 0, 'Do not import the local slider interaction');
@@ -90,6 +88,8 @@ try {
     await page.locator('.bw-progress').waitFor();
     // Preserve only the isolated demo fixture between viewports.
     await page.evaluate(() => { for (const key of Object.keys(localStorage)) if (key.startsWith('BW05S_app_v1:')) localStorage.removeItem(key); });
+    await page.reload();
+    await page.locator('[data-app-screen]').waitFor();
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${base}#/app/cleaning-machine/home`);
@@ -139,7 +139,7 @@ try {
     await page.locator('.bw-mode-card').first().waitFor();
     await inspect('offline');
     await page.goto(`${base}#/app`);
-    await page.locator('[data-connector=device]').waitFor();
+    await page.locator('[data-model=bw05s]').waitFor();
     await inspect('offline-devices');
     await context.setOffline(false);
   }
@@ -148,19 +148,19 @@ try {
   assert.match(page.url(), /#\/app$/);
   await page.setViewportSize({ width: 1512, height: 1100 });
   await page.goto(`${base}#/demo`);
-  await page.locator('.console-panel').waitFor();
+  await page.locator('.workspace-header').waitFor();
   await page.goto(`${base}#/app`);
   await page.locator('[data-app-screen]').waitFor();
   assert.equal(await page.locator('.workspace-header').count(), 0);
   const pc = await context.newPage();
   await pc.setViewportSize({ width: 1512, height: 1100 });
   await pc.goto(base);
-  await pc.locator('.console-panel').waitFor();
+  await pc.locator('.workspace-header').waitFor();
   assert.match(pc.url(), /#\/demo$/);
   await pc.goto(`${base}#/cleaning-machine`);
   await pc.locator('.bw-mode-card').first().waitFor();
   await pc.goto(`${base}#/demo`);
-  await pc.locator('.console-panel').waitFor();
+  await pc.locator('.workspace-header').waitFor();
   await pc.getByRole('button', { name: '手机体验二维码' }).click();
   await pc.getByRole('dialog', { name: '手机体验', exact: true }).waitFor();
   await pc.screenshot({ path: 'tests/artifacts/app/pc-qr.png' });
