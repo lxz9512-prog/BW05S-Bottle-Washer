@@ -17,7 +17,15 @@ export function experienceHash(hash: string, mode: 'app' | 'demo') {
   return `#/${mode}${businessRoute || notifications ? route : ''}`;
 }
 
-const entry = resolveEntry(window.location.hash, window.matchMedia('(max-width: 768px)').matches);
+const compact = window.matchMedia('(max-width: 768px)').matches;
+const phone = window.matchMedia('(max-width: 1023px) and (pointer: coarse)').matches;
+const url = new URL(window.location.href);
+// Shared PC links should not put a second phone frame inside a real phone.
+if (phone && url.searchParams.get('preview') !== 'pc' && resolveEntry(url.hash, compact).mode === 'demo') {
+  url.hash = experienceHash(url.hash, 'app');
+  window.history.replaceState(null, '', url);
+}
+const entry = resolveEntry(window.location.hash, compact);
 export const isApp = entry.mode === 'app';
 export const entryBase = entry.base;
 export const entryPath = (path = '/') => `${entryBase}${path === '/' ? '' : path}` || '/';

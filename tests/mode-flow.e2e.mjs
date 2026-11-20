@@ -75,6 +75,13 @@ try {
   assert.equal(await page.locator('[data-mode=auto] .bw-mode-open').evaluate(node => getComputedStyle(node).backgroundColor), 'rgba(0, 0, 0, 0)', 'mode button must not inherit demo toolbar selection styling');
   assert.equal(await dialog.locator('.bw-mode-name').count(), 0, 'preset sheet name is not editable');
   assert.equal(await dialog.getByRole('heading').first().innerText(), '标准洗');
+  await dialog.getByRole('button', { name: '下一个模式', exact: true }).click();
+  assert.equal(await dialog.getByRole('heading').first().innerText(), '快速洗');
+  assert.equal(await dialog.locator('.bw-mode-switch-title').evaluate(node => getComputedStyle(node).animationDuration), '0.24s');
+  await dialog.getByRole('button', { name: '上一个模式', exact: true }).click();
+  assert.equal(await dialog.getByRole('heading').first().innerText(), '标准洗');
+  assert.equal(await dialog.locator('.bw-mode-switch-title').evaluate(node => getComputedStyle(node).getPropertyValue('--mode-enter-x').trim()), '-10px');
+  await page.waitForTimeout(280);
   assert.equal(await dialog.locator('.bw-cycle-duration').innerText(), '清洗周期时长 · 93 分钟');
   assert.equal(await dialog.locator('.bw-storage-section h3').count(), 0);
   assert.equal(await dialog.locator('.bw-storage-section > p').innerText(), '清洗结束后自动保管，不计入清洗时长');
@@ -130,6 +137,7 @@ try {
     if (id === 'custom') await open(id);
     else { await page.getByRole('button', { name: '添加自定义模式', exact: true }).click(); await dialog.waitFor(); }
     await dialog.locator('.bw-mode-name').click();
+    assert.equal(await dialog.locator('.bw-mode-name-field').evaluate(node => getComputedStyle(node).borderBottomWidth), '0px', 'custom names have no underline, including during editing');
     assert.equal(await dialog.locator('.bw-mode-name').evaluate(node => node === document.activeElement), true, 'clicking the name directly focuses editing');
     await dialog.locator('.bw-mode-name').fill(label);
     assert.equal(await dialog.locator('.bw-mode-name-field > svg').count(), 0);
@@ -180,8 +188,27 @@ try {
   assert.equal(await dialog.locator('.bw-cycle-duration').innerText(), '清洗周期时长 · 84 分钟');
   assert.equal(await dialog.getByRole('textbox', { name: '保管 时长', exact: true }).inputValue(), '12');
   await page.screenshot({ path: 'tests/artifacts/modes/preset.png' });
+  await page.evaluate(() => {
+    window.launchTransition = new Promise(resolve => {
+      const observer = new MutationObserver(() => {
+        const overlay = document.querySelector('.bw-sheet-starting.bw-sheet-closing');
+        if (!overlay) return;
+        resolve({
+          duration: getComputedStyle(overlay.querySelector('.bw-sheet')).transitionDuration,
+          disabled: overlay.querySelector('[aria-label="开始清洗"]').disabled,
+        });
+        observer.disconnect();
+      });
+      observer.observe(document.querySelector('[data-mode-overlay]'), { attributes: true, attributeFilter: ['class'] });
+    });
+  });
   await dialog.getByRole('button', { name: '开始清洗', exact: true }).click();
+  const launchTransition = await page.evaluate(() => window.launchTransition);
+  assert.equal(launchTransition.duration, '0.28s', 'launch exit stays brief while retaining a visible transition');
+  assert.equal(launchTransition.disabled, true, 'no duplicate launch during exit');
   await page.locator('.bw-progress').waitFor();
+  assert.equal(await page.locator('.bw-progress').evaluate(node => getComputedStyle(node).animationDuration), '0.52s');
+  await page.waitForTimeout(700);
   assert.equal(await page.locator('.bw-run-title').innerText(), '标准洗');
   assert.equal(await page.locator('.bw-progress .bw-run-title').count(), 1, 'mode title belongs inside the stage block');
   assert.equal(await page.locator('.bw-progress .bw-run-time').count(), 0, 'remaining time stays outside the stage block');

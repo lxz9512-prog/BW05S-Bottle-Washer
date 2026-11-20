@@ -37,11 +37,14 @@ const DeviceList: React.FC = () => {
   const machines = useSyncExternalStore(cleaningMachineStore.subscribe, cleaningMachineStore.getAllSnapshot);
   const deviceStatus = (machineState: CleaningMachineState) => {
   const isDeviceActive = machineState.cycleActive || !!machineState.scheduleAt;
-  const complete = cycleProgress(cycleSteps(machineState.selectedMode, machineState.customConfig), machineState.elapsedSeconds).complete;
+  const progress = cycleProgress(cycleSteps(machineState.selectedMode, machineState.customConfig), machineState.elapsedSeconds);
+  const remainingLabel = progress.remaining > 0
+    ? `${Math.ceil(progress.remaining / 60)} min left`
+    : `${Math.ceil(progress.totalRemaining / 60)} min of storage left`;
   const lastUsed = machineState.lastUsedAt ? new Date(machineState.lastUsedAt) : null;
   const lastUsedLabel = lastUsed?.toLocaleString([], { ...(lastUsed.toDateString() === new Date().toDateString() ? {} : { month: 'short' as const, day: 'numeric' as const }), hour: '2-digit', minute: '2-digit', hour12: false });
   const statusText = machineState.scheduleAt ? 'Scheduled' : isDeviceActive
-    ? (complete ? 'Done' : machineState.isRunning ? 'In Progress' : 'Paused')
+    ? (progress.complete ? 'Done' : machineState.isRunning ? remainingLabel : 'Paused')
     : lastUsed ? `Last used · ${lastUsedLabel}` : 'Not used yet';
   const statusColor = isDeviceActive
     ? (machineState.isRunning || machineState.scheduleAt ? '#287dcc' : '#b56c15')

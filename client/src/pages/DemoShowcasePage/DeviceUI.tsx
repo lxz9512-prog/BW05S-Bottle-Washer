@@ -80,9 +80,10 @@ export function DeviceSheet({ title, onClose, children, heading, footer, closeRe
   useEffect(() => { if (closeRequested) setClosing(true); }, [closeRequested]);
   useEffect(() => {
     if (!closing) return;
-    const timer = window.setTimeout(() => finishClose.current(), 240);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const timer = window.setTimeout(() => finishClose.current(), reducedMotion ? 0 : closeRequested ? 300 : 240);
     return () => window.clearTimeout(timer);
-  }, [closing]);
+  }, [closing, closeRequested]);
   useLayoutEffect(() => {
     const overlay = overlayRef.current!;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -100,7 +101,7 @@ export function DeviceSheet({ title, onClose, children, heading, footer, closeRe
       if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
     };
   }, []);
-  return <div ref={overlayRef} data-screen-overlay data-mode-overlay className={`bw-overlay ${closing ? 'bw-sheet-closing' : ''}`}>
+  return <div ref={overlayRef} data-screen-overlay data-mode-overlay className={`bw-overlay ${closing ? 'bw-sheet-closing' : ''} ${closeRequested ? 'bw-sheet-starting' : ''}`}>
     <button className="bw-backdrop" aria-label={copy('Dismiss', '收起面板')} onClick={dismiss} tabIndex={-1} />
     <section role="dialog" aria-modal="true" aria-label={title} className={`bw-sheet ${dragStart.current !== null ? 'bw-dragging' : ''}`} style={dragY && !closing ? { transform: `translateY(${dragY}px)` } : undefined} onKeyDown={event => {
       if (event.key === 'Escape') { event.stopPropagation(); dismiss(); }

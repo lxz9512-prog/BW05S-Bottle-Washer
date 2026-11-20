@@ -113,7 +113,7 @@ try {
   await page.locator('.bw-progress').waitFor();
   assert.ok((await stored('bw05a')).scheduleAt > Date.now());
   await back();
-  assert.match(await page.locator('[data-model=bw05p] .device-status').innerText(), /In Progress/);
+  assert.match(await page.locator('[data-model=bw05p] .device-status').innerText(), /93 min left/);
   assert.match(await page.locator('[data-model=bw05a] .device-status').innerText(), /Scheduled/);
   assert.match(await page.locator('[data-model=bw05s] .device-status').innerText(), /Not used/);
   await page.locator('[data-model=bw05p]').click();
@@ -121,6 +121,10 @@ try {
   await page.getByRole('button', { name: '暂停或继续清洗', exact: true }).click();
   await page.waitForFunction(key => JSON.parse(localStorage.getItem(key)).isRunning === false, key('bw05p'));
   assert.equal((await stored('bw05p')).isRunning, false);
+  await back();
+  assert.match(await page.locator('[data-model=bw05p] .device-status').innerText(), /Paused/);
+  await page.locator('[data-model=bw05p]').click();
+  await page.locator('.bw-progress').waitFor();
   await page.locator('.bw-supply-bars').click(); await back();
   await page.locator('.bw-progress').waitFor();
   assert.equal((await stored('bw05p')).isRunning, false);

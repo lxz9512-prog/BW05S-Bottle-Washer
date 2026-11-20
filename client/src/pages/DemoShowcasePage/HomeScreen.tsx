@@ -31,6 +31,7 @@ export default function HomeScreen({ onNavigate, selectedMode, onSelectMode, las
   const [sheet, setSheet] = useState<'options' | 'schedule' | null>(initialCustom ? 'options' : null);
   const [option, setOption] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
+  const [switchDirection, setSwitchDirection] = useState(1);
   const pendingStart = useRef<(() => void) | null>(null);
   useEffect(() => { if (initialCustom) onSelectMode('custom'); }, [initialCustom]);
   useEffect(() => { if (unavailable) { setSheet(null); setClosing(false); pendingStart.current = null; } }, [unavailable]);
@@ -71,7 +72,7 @@ export default function HomeScreen({ onNavigate, selectedMode, onSelectMode, las
   const start = useOperation({ operation: 'cleaning.start', stage: 'cleaning', label: '启动清洗', ready: () => ready, edit: () => {}, success: () => animateStart() });
   const select = (id: string) => { if (!supportsMode(id)) return; onSelectMode(id); setOption(null); setClosing(false); setSheet('options'); };
   const modes = groups.flatMap(group => group.modes);
-  const switchMode = (direction: number) => select(modes[(modes.indexOf(selectedMode!) + direction + modes.length) % modes.length]);
+  const switchMode = (direction: number) => { setSwitchDirection(direction); select(modes[(modes.indexOf(selectedMode!) + direction + modes.length) % modes.length]); };
   const close = () => { setSheet(null); setClosing(false); const pending = pendingStart.current; pendingStart.current = null; pending?.(); };
   const storage = steps.find(step => step.id === 'keep-warm');
   const cleaning = steps.filter(step => step.id !== 'keep-warm');
@@ -92,13 +93,15 @@ export default function HomeScreen({ onNavigate, selectedMode, onSelectMode, las
     </div>
     {sheet === 'options' && selectedMode && <DeviceSheet title={name(selectedMode)} heading={<div className="bw-mode-switch" data-mode-id={selectedMode}>
       <button className="bw-icon" title={copy('Previous mode', '上一个模式')} aria-label={copy('Previous mode', '上一个模式')} disabled={closing || unavailable} onClick={() => switchMode(-1)}><ChevronLeft size={22} /></button>
-      <div className="bw-mode-switch-title" key={selectedMode}>{custom ? nameInput(selectedMode) : <h2>{name(selectedMode)}</h2>}</div>
+      <div className={`bw-mode-switch-title bw-mode-enter ${switchDirection < 0 ? 'bw-mode-enter-previous' : ''}`} key={selectedMode}>{custom ? nameInput(selectedMode) : <h2>{name(selectedMode)}</h2>}</div>
       <button className="bw-icon" title={copy('Next mode', '下一个模式')} aria-label={copy('Next mode', '下一个模式')} disabled={closing || unavailable} onClick={() => switchMode(1)}><ChevronRight size={22} /></button>
     </div>} onClose={close} closeRequested={closing} footer={<><button className="bw-secondary" disabled={!ready || closing} onClick={() => setSheet('schedule')}><Clock3 size={17} />{copy('Delay Start', '定时启动')}</button><button className="bw-primary" aria-label="开始清洗" disabled={!ready || closing || unavailable} onClick={start}><Play size={16} fill="currentColor" />{copy('Start', '启动')}</button></>}>
+      <div key={selectedMode} className={`bw-mode-enter ${switchDirection < 0 ? 'bw-mode-enter-previous' : ''}`}>
       <p className="bw-cycle-duration">{copy(`Cleaning cycle · ${cycleMinutes(steps)} min`, `清洗周期时长 · ${cycleMinutes(steps)} 分钟`)}</p>
       {needsOptions && <><p className="bw-sheet-context">{selectedMode === 'delicate-wash' ? copy('Material', '材质') : copy('Quantity', '数量')}</p><div className="bw-options">{options.map(value => <button key={value} className={option === value ? 'selected' : ''} aria-pressed={option === value} onClick={() => setOption(value)}>{optionLabel(value)}</button>)}</div></>}
       <div className="bw-cycle-section">{custom ? <CustomEditor steps={cleaning} onChange={next => updateSteps([...next, ...steps.filter(step => step.id === 'keep-warm')])} onInvalid={() => showToast(copy('Value out of range. Retry.', '数值超出范围，请重试。'))} /> : <div className="bw-preset-steps">{cleaning.filter(step => cycleSteps(selectedMode, null).find(original => original.id === step.id)?.enabled).map(step => <button key={step.id} role="checkbox" aria-checked={step.enabled} disabled={step.id === 'wash'} className={`bw-preset-step ${step.enabled ? 'selected' : ''} ${step.id === 'wash' ? 'required' : ''}`} onClick={() => updateSteps(steps.map(item => item.id === step.id ? { ...item, enabled: !item.enabled } : item))}><span className="bw-check">{step.enabled && <Check size={12} />}</span><StepIcon id={step.id} /><span className="bw-preset-label">{stepLabels[step.id]}</span><strong>{step.duration} {copy('min', '分钟')}</strong></button>)}</div>}</div>
       {storage && (custom || selectedMode !== 'self-clean') && <section className="bw-storage-section"><p>{copy('Automatic storage after cleaning; not included in cycle time', '清洗结束后自动保管，不计入清洗时长')}</p><CustomEditor steps={[storage]} onChange={next => updateSteps([...cleaning, ...next])} onInvalid={() => showToast(copy('Value out of range. Retry.', '数值超出范围，请重试。'))} /></section>}
+      </div>
     </DeviceSheet>}
     {sheet === 'schedule' && selectedMode && <ScheduleSheet modeLabel={name(selectedMode)} closeRequested={closing} onClose={() => { if (pendingStart.current) close(); else setSheet('options'); }} onSave={minutes => animateStart(minutes)} />}
   </DeviceSurface>;

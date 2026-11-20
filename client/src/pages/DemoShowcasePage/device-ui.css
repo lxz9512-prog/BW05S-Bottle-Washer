@@ -54,8 +54,11 @@
 .bw-mode-switch .bw-mode-name-field { margin-bottom: 0; }
 .bw-sheet-heading .bw-mode-switch h2 { height: auto; min-height: 34px; display: flex; align-items: center; justify-content: center; }
 .bw-sheet-heading h2, .bw-sheet-heading .bw-mode-name { font-family: inherit; font-size: 18px; font-weight: 600; line-height: 26px; height: 34px; text-align: center; color: var(--bw-ink); }
-.bw-mode-name-field { display: flex; align-items: center; gap: 8px; width: 240px; max-width: 100%; margin: 0 auto 10px; padding: 3px 6px; border-bottom: 1px solid var(--bw-line); }
-.bw-mode-name-field:focus-within { border-bottom-color: var(--bw-blue); }
+.bw-mode-name-field { display: flex; align-items: center; gap: 8px; width: 240px; max-width: 100%; margin: 0 auto 10px; padding: 3px 6px; border: 0; }
+.bw-mode-name-field:has(input:focus-visible) { outline: 2px solid var(--bw-blue); outline-offset: 2px; border-radius: 6px; }
+.bw-mode-enter { --mode-enter-x: 10px; animation: bw-mode-enter .24s cubic-bezier(.22,.75,.25,1) both; }
+.bw-mode-enter-previous { --mode-enter-x: -10px; }
+@keyframes bw-mode-enter { from { opacity: .35; transform: translateX(var(--mode-enter-x)); } to { opacity: 1; transform: translateX(0); } }
 .bw-sheet-heading .bw-mode-name-field .bw-mode-name { flex: 1; min-width: 0; width: 0; text-align: center; outline: none; border-radius: 0; }
 .bw-cycle-duration { font-size: 12px; text-align: center; color: var(--bw-muted); margin: 0 0 22px; }
 .bw-preset-steps { display: flex; flex-direction: column; gap: 9px; }
@@ -77,10 +80,14 @@
 .bw-secondary:disabled { opacity: .4; }
 .bw-sheet-closing .bw-sheet { transform: translateY(105%); animation: none; transition: transform .23s ease-in; }
 .bw-sheet-closing .bw-backdrop { opacity: 0; transition: opacity .23s; }
+.bw-sheet-closing.bw-sheet-starting .bw-sheet { transition: transform .28s cubic-bezier(.4,0,.65,1); }
+.bw-sheet-closing.bw-sheet-starting .bw-backdrop { transition: opacity .28s ease-in-out; }
 .bw-progress-heading { padding: 6px 0 8px; }
 .bw-progress-heading .bw-run-title { margin: 0; text-align: left; line-height: 20px; overflow-wrap: anywhere; }
-.bw-running-state .bw-run-time, .bw-running-state .bw-progress, .bw-running-state .bw-dock { animation: bw-running-in .3s ease-out; }
-@keyframes bw-running-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.bw-running-state .bw-run-time, .bw-running-state .bw-progress, .bw-running-state .bw-dock { animation: bw-running-in .52s cubic-bezier(.22,.75,.25,1) both; }
+.bw-running-state .bw-progress { animation-delay: .06s; }
+.bw-running-state .bw-dock { animation-delay: .12s; }
+@keyframes bw-running-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 .bw-settings-content { padding-top: 12px; padding-bottom: 30px; }
 .bw-settings-content h2 { font-size: 12px; font-weight: 400; color: var(--bw-muted); margin: 22px 0 9px; }
 .bw-setting-row { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 50px; padding: 12px 15px; border: 0; border-radius: 12px; background: var(--bw-card); color: var(--bw-ink); font-size: 13px; text-align: left; }
