@@ -7,7 +7,7 @@ export default defineConfig(({ command }) => ({
   root: 'client',
   base: './',
   plugins: [VitePWA({
-    registerType: 'prompt',
+    registerType: 'autoUpdate',
     injectRegister: false,
     includeAssets: ['app-icon-192.png', 'app-icon-512.png', 'apple-touch-icon.png'],
     manifest: {

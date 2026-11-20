@@ -84,6 +84,21 @@ try {
       const button = node.querySelector('button').getBoundingClientRect();
       return rect.bottom === innerHeight && button.bottom <= innerHeight - 34;
     }), 'sheet paints to the bottom but buttons avoid the home indicator');
+    await dialog.getByRole('button', { name: '收起浮窗', exact: true }).click();
+    await dialog.waitFor({ state: 'hidden' });
+    await page.locator('[data-mode=auto] .bw-mode-open').click();
+    await page.getByRole('button', { name: '开始清洗', exact: true }).click();
+    await page.locator('.bw-progress').waitFor();
+    assert.ok(await page.locator('.app-page-body').evaluate(node => {
+      const screen = node.closest('[data-app-screen]').getBoundingClientRect();
+      const body = node.getBoundingClientRect();
+      return body.top >= screen.top + 62 && body.bottom <= screen.bottom - 34;
+    }), 'device control content stays inside the safe area');
+    assert.ok(await page.locator('[data-app-screen]').evaluate(node => {
+      const screen = node.getBoundingClientRect();
+      const color = getComputedStyle(node).backgroundImage;
+      return screen.top === 0 && screen.bottom === innerHeight && color.includes('linear-gradient');
+    }), 'device control page paints its background edge to edge');
     assert.deepEqual(errors, []);
     await context.close();
   }

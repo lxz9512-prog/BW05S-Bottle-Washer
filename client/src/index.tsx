@@ -12,7 +12,9 @@ import { isApp } from './runtime';
 
 if (isApp && import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(error => console.warn('Offline support unavailable', error));
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`, { updateViaCache: 'none' })
+      .then(registration => registration.update())
+      .catch(error => console.warn('Offline support unavailable', error));
   });
 }
 
