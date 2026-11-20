@@ -37,7 +37,13 @@ try {
     await page.screenshot({ path: `tests/artifacts/device-status/running-${width}.png` });
   }
   await seed({ bw05s: { elapsedSeconds: 93 * 60 + 60 } });
-  assert.match(await status('bw05s').innerText(), /4319 min of storage left/);
+  assert.match(await status('bw05s').innerText(), /保管中/);
+  assert.match(await status('bw05s').innerText(), /72 h left/);
+  assert.doesNotMatch(await status('bw05s').innerText(), /标准洗/);
+  await seed({ bw05s: { elapsedSeconds: (93 + 72 * 60 - 59) * 60 } });
+  assert.match(await status('bw05s').innerText(), /保管中/);
+  assert.match(await status('bw05s').innerText(), /59 min left/);
+  assert.doesNotMatch(await status('bw05s').innerText(), /标准洗/);
   await seed({ bw05s: { elapsedSeconds: (93 + 72 * 60) * 60, isRunning: false, runStartedAt: null } });
   assert.match(await status('bw05s').innerText(), /Done/);
   assert.doesNotMatch(await status('bw05s').innerText(), /0 min/);

@@ -40,11 +40,16 @@ const DeviceList: React.FC = () => {
   const progress = cycleProgress(cycleSteps(machineState.selectedMode, machineState.customConfig), machineState.elapsedSeconds);
   const remainingLabel = progress.remaining > 0
     ? `${Math.ceil(progress.remaining / 60)} min left`
-    : `${Math.ceil(progress.totalRemaining / 60)} min of storage left`;
+    : '';
+  const storing = progress.remaining <= 0 && !progress.complete && progress.totalRemaining > 0;
+  const storageMinutes = Math.ceil(progress.totalRemaining / 60);
+  const storageRemainingLabel = progress.totalRemaining < 3600
+    ? `${storageMinutes} min left`
+    : `${Math.ceil(progress.totalRemaining / 3600)} h left`;
   const lastUsed = machineState.lastUsedAt ? new Date(machineState.lastUsedAt) : null;
   const lastUsedLabel = lastUsed?.toLocaleString([], { ...(lastUsed.toDateString() === new Date().toDateString() ? {} : { month: 'short' as const, day: 'numeric' as const }), hour: '2-digit', minute: '2-digit', hour12: false });
   const statusText = machineState.scheduleAt ? 'Scheduled' : isDeviceActive
-    ? (progress.complete ? 'Done' : machineState.isRunning ? remainingLabel : 'Paused')
+    ? (progress.complete ? 'Done' : storing && machineState.isRunning ? '保管中' : machineState.isRunning ? remainingLabel : 'Paused')
     : lastUsed ? `Last used · ${lastUsedLabel}` : 'Not used yet';
   const statusColor = isDeviceActive
     ? (machineState.isRunning || machineState.scheduleAt ? '#287dcc' : '#b56c15')
@@ -52,7 +57,8 @@ const DeviceList: React.FC = () => {
   const modeLabel = machineState.selectedMode
     ? (machineState.modeConfig?.modeLabel || MODE_LABELS[machineState.selectedMode] || '')
     : '';
-    return { isDeviceActive, statusText, statusColor, modeLabel };
+  const statusDetail = storing && machineState.isRunning ? storageRemainingLabel : modeLabel;
+    return { isDeviceActive, statusText, statusColor, statusDetail };
   };
 
   return (
@@ -90,7 +96,7 @@ const DeviceList: React.FC = () => {
 
           {MACHINE_MODELS.map(model => {
             const machineState = machines[model.id];
-            const { isDeviceActive, statusText, statusColor, modeLabel } = deviceStatus(machineState);
+            const { isDeviceActive, statusText, statusColor, statusDetail } = deviceStatus(machineState);
             return <motion.button
             key={model.id}
             type="button"
@@ -111,7 +117,7 @@ const DeviceList: React.FC = () => {
               <span className="device-status">
                 <span className="device-status-dot" style={{ backgroundColor: statusColor }} />
                 <span style={{ color: statusColor }}>{statusText}</span>
-                {isDeviceActive && modeLabel && <span className="device-mode">· {modeLabel}</span>}
+                {isDeviceActive && statusDetail && <span className="device-mode">· {statusDetail}</span>}
               </span>
             </span>
           </motion.button>;

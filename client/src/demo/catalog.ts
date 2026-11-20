@@ -26,7 +26,7 @@ const note = (title: string, body: string, target: string) => ({ title, body, ta
 export const pages: Record<string, DemoPage> = {
   devices: { id: 'devices', title: '设备列表', stage: 'devices', operations: ['devices.load'], notes: [
     note('清洗机入口', 'BW05S、BW05P、BW05A 各有独立设备入口。运行、预约与自定义模式按型号保存，返回设备列表后继续计时。', 'device'),
-    note('列表状态', '加载、空态和失败场景替换列表内容；恢复正常不重放启动操作。', 'content'),
+    note('列表状态', '加载、空态和失败场景替换列表内容；清洗中显示剩余分钟；进入保管后显示“保管中”和剩余时间，剩余时间达到 1 小时显示小时，不足 1 小时显示分钟，保管状态不显示模式名称；恢复正常不重放启动操作。', 'content'),
   ] },
   home: { id: 'home', title: '模式选择', stage: 'cleaning', operations: ['cleaning.start'], notes: [
     note('模式选择', '点击任意模式打开底部浮窗；预设模式名称固定，自定义模式仅可在浮窗内改名并本地保存，最多保存三个自定义模式。', 'content'),
@@ -36,7 +36,7 @@ export const pages: Record<string, DemoPage> = {
     note('步骤与时长', '步骤默认不选。清洗 19–45 分钟、蒸汽 7–10 分钟、烘干 40–70 分钟、保管 10–72 小时。支持数字输入，超限提示并限制范围。至少选择一步才能启动或预约。', 'content'),
   ] },
   'run-control': { id: 'run-control', title: '运行控制', stage: 'running', operations: ['running.control'], notes: [
-    note('清洗进度', '设备图下方显示步骤时间轴与剩余时长。返回设备列表继续计时；暂停时，自定义模式只能编辑尚未开始的步骤。模拟故障期间停止推进。', 'content'),
+    note('清洗进度', '设备图下方显示步骤时间轴与剩余时长。返回设备列表继续计时；暂停时，自定义模式只能编辑尚未开始的步骤。设备列表在保管阶段显示“保管中”和剩余时间，达到 1 小时显示小时，不足 1 小时显示分钟，并隐藏模式名称。模拟故障期间停止推进。', 'content'),
     note('暂停与继续', '通过底部按钮发送控制操作；重试成功后才改变运行状态。停止仍沿用原确认弹窗。', 'action'),
   ] },
   'smart-mode': { id: 'smart-mode', title: '智能模式运行', stage: 'running', operations: ['running.control'], notes: [
